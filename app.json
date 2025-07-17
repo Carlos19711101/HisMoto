@@ -1,16 +1,16 @@
 {
   "expo": {
-    "name": "HisMoto",
-    "slug": "historia-motocicleta",
+    "name": "HisCar",
+    "slug": "historia-vehiculo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "backgroundColor": "#ffffff",
+    "backgroundColor": "transparent",
     "splash": {
       "image": "./assets/icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "transparent"
     },
     "plugins": [
       [
@@ -24,7 +24,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "backgroundColor": "#ffffff",
+      "backgroundColor": "transparent",
       "infoPlist": {
         "NSCameraUsageDescription": "Esta aplicación necesita acceso a la cámara para tomar fotos.",
         "NSMicrophoneUsageDescription": "Esta aplicación necesita acceso al micrófono para grabar audio."
@@ -32,7 +32,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icon.png",
+        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.carlosvelez.hismoto",
@@ -43,17 +43,12 @@
       ],
       "softwareKeyboardLayoutMode": "pan",
       "statusBar": {
-        "backgroundColor": "#ffffff",
-        "translucent": true
+          "backgroundColor": "transparent",
+          "translucent": true
       }
     },
     "web": {
-      "favicon": "./assets/icon.png"
-    },
-    "extra": {
-      "eas": {
-        "projectId": "ade28a2f-62b7-41c7-8681-7205fc1883ff"
-      }
+      "favicon": "./assets/favicon.png"
     }
   }
 }
