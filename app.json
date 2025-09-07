@@ -1,16 +1,16 @@
 {
   "expo": {
-    "name": "HisCar",
-    "slug": "historia-vehiculo",
-    "version": "1.0.0",
+    "name": "HisMoto",
+    "slug": "historia-motocicleta",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "backgroundColor": "transparent",
+    "backgroundColor": "#00000000",
     "splash": {
       "image": "./assets/icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "transparent"
+      "backgroundColor": "#00000000"
     },
     "plugins": [
       [
@@ -20,35 +20,57 @@
           "microphonePermission": "Allow HisMoto to access your microphone",
           "recordAudioAndroid": true
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#090FFA",
+          "sounds": ["./assets/notification-sound.wav"]
+        }
       ]
     ],
     "ios": {
       "supportsTablet": true,
-      "backgroundColor": "transparent",
+      "backgroundColor": "#00000000",
       "infoPlist": {
         "NSCameraUsageDescription": "Esta aplicación necesita acceso a la cámara para tomar fotos.",
-        "NSMicrophoneUsageDescription": "Esta aplicación necesita acceso al micrófono para grabar audio."
+        "NSMicrophoneUsageDescription": "Esta aplicación necesita acceso al micrófono para grabar audio.",
+        "NSRemindersUsageDescription": "Esta aplicación necesita acceso a los recordatorios para notificarte.",
+        "NSAppleMusicUsageDescription": "Esta aplicación necesita acceso para reproducir sonidos de notificación."
       }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/icon-adactative.png",
+        "backgroundColor": "#00000000"
       },
       "package": "com.carlosvelez.hismoto",
       "versionCode": 2,
       "permissions": [
         "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO"
+        "android.permission.RECORD_AUDIO",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.SCHEDULE_EXACT_ALARM",
+        "android.permission.USE_EXACT_ALARM",
+        "android.permission.WAKE_LOCK",
+        "android.permission.VIBRATE"
       ],
       "softwareKeyboardLayoutMode": "pan",
       "statusBar": {
-          "backgroundColor": "transparent",
-          "translucent": true
-      }
+        "backgroundColor": "#00000000",
+        "translucent": true,
+        "barStyle": "light-content"
+      },
+      "useNextNotificationsApi": true
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/icon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "ade28a2f-62b7-41c7-8681-7205fc1883ff"
+      }
     }
   }
 }

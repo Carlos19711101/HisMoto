@@ -50,10 +50,10 @@ const styles = StyleSheet.create<Styles>({
     paddingBottom: 20,
   },
   entryContainer: {
-    backgroundColor: 'rgba(12, 15, 250, 0.9)',
+    backgroundColor: 'rgba(12, 16, 250, 0.81)',
     borderRadius: 10,
-    padding: 15,
-    marginHorizontal: 15,
+    padding: 5,
+    marginHorizontal: 8,
     marginVertical: 8,
     position: 'relative',
   },
@@ -61,14 +61,17 @@ const styles = StyleSheet.create<Styles>({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 5,
+    right: 5,
   },
   entryDate: {
     color: '#fff',
     fontSize: 12,
+    left: 25,
   },
   deleteButton: {
     padding: 5,
+    right: 5,
   },
   entryText: {
     fontSize: 16,
@@ -77,9 +80,9 @@ const styles = StyleSheet.create<Styles>({
   },
   entryImage: {
     width: '100%',
-    height: 200,
+    height: 400,
     borderRadius: 8,
-    marginTop: 10,
+    marginTop: 5,
   },
   timelineConnector: {
     position: 'absolute',
@@ -137,8 +140,8 @@ const styles = StyleSheet.create<Styles>({
     fontSize: 18,
     fontWeight: 'bold',
     color: 'white',
-    marginBottom: 30,
-    marginTop: 30,
+    marginBottom: 8,
+    marginTop: 8,
     right: -5,
   },
     footerContainer: {

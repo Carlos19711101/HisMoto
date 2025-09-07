@@ -13,7 +13,10 @@ import ProfileScreen from './src/screens/ProfileScreen';
 import TodoScreen from './src/screens/TodoScreen';
 import RouteScreen from './src/screens/RouteScreen';
 import GeneralScreen from './src/screens/GeneralScreen';
-
+import SearchAdress from './src/screens/SearchAddress';
+import AgendaScreen from './src/screens/AgendaScreen'; 
+import InfoScreen from './src/screens/InfoScreen';
+import ChatBotsScreen from './src/screens/ChatBotsScreen';
 // Tipos de rutas
 type RootStackParamList = {
   Welcome: undefined;
@@ -25,6 +28,10 @@ type RootStackParamList = {
   Emergency: undefined;
   Profile: undefined;
   Route: undefined;
+  SearchAddress: undefined;
+  Agenda: undefined; 
+  Info: undefined;
+  ChatBots: undefined;
 };
 
 // Tipos para navegación
@@ -37,6 +44,9 @@ export type PreventiveScreenNavigationProp = NativeStackNavigationProp<RootStack
 export type EmergencyScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Emergency'>;
 export type ProfileScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Profile'>;
 export type RouteScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Route'>;
+export type AgendaScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Agenda'>;
+export type InfoScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Info'>;
+export type ChatBotsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'ChatBots'>;
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -69,6 +79,11 @@ export default function App() {
           <Stack.Screen name="Emergency" component={EmergencyScreen} />
           <Stack.Screen name="Profile" component={ProfileScreen} />
           <Stack.Screen name="Route" component={RouteScreen} />
+          <Stack.Screen name="SearchAddress" component={SearchAdress} />
+          <Stack.Screen name="Agenda" component={AgendaScreen} />
+          <Stack.Screen name="Info" component={InfoScreen} />
+          <Stack.Screen name="ChatBots" component={ChatBotsScreen} />
+          
         </Stack.Navigator>
       </NavigationContainer>
     </View>

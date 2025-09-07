@@ -1,157 +1,231 @@
-import { StyleSheet, ViewStyle, TextStyle, ImageStyle, StatusBar } from 'react-native';
+import { StyleSheet } from 'react-native';
 
-interface Styles {
-  container: ViewStyle;
-  content: ViewStyle;
-  keyboardAvoidingView: ViewStyle;
-  backButton: ViewStyle;
-  entriesList: ViewStyle;
-  entryContainer: ViewStyle;
-  entryHeader: ViewStyle;
-  entryDate: TextStyle;
-  deleteButton: ViewStyle;
-  entryText: TextStyle;
-  entryImage: ImageStyle;
-  timelineConnector: ViewStyle;
-  inputContainer: ViewStyle;
-  input: TextStyle;
-  mediaButton: ViewStyle;
-  sendButton: ViewStyle;
-  imagePreviewContainer: ViewStyle;
-  imagePreview: ImageStyle;
-  removeImageButton: ViewStyle;
-  listFooter: ViewStyle;
-  title: TextStyle;
-}
-
-const styles = StyleSheet.create<Styles>({
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   container: {
     flex: 1,
   },
-  content: {
-    padding: 10,
-    alignItems: 'center',
-    width: '100%',
-  },
-  keyboardAvoidingView: {
-    flex: 1,
-  },
-  backButton: {
-    position: 'absolute',
-    top: 40,
-    left: 30,
-    zIndex: 10,
-  },
-  entriesList: {
-    paddingBottom: 20,
-  },
-  entryContainer: {
-    backgroundColor: 'rgba(12, 15, 250, 0.9)',
-    borderRadius: 10,
-    padding: 15,
-    marginHorizontal: 15,
-    marginVertical: 8,
-    position: 'relative',
-  },
-  entryHeader: {
+  header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
-  },
-  entryDate: {
-    color: '#fff',
-    fontSize: 12,
-  },
-  deleteButton: {
-    padding: 5,
-  },
-  entryText: {
-    fontSize: 16,
-    color: '#fff',
-    marginTop: 5,
-  },
-  entryImage: {
-    width: '100%',
-    height: 200,
-    borderRadius: 8,
-    marginTop: 10,
-  },
-  timelineConnector: {
-    position: 'absolute',
-    left: -15,
-    top: 30,
-    bottom: -8,
-    width: 2,
-    backgroundColor: 'white',
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10,
-    marginBottom: 10,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-  },
-  input: {
-    flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    borderRadius: 20,
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    marginHorizontal: 5,
-    maxHeight: 100,
-    color: '#333',
-  },
-  mediaButton: {
-    padding: 8,
-  },
-  sendButton: {
-    padding: 8,
-    marginLeft: 5,
-  },
-  imagePreviewContainer: {
-    position: 'relative',
-    padding: 10,
-  },
-  imagePreview: {
-    width: 100,
-    height: 100,
-    borderRadius: 8,
-  },
-  removeImageButton: {
-    position: 'absolute',
-    top: 5,
-    right: 5,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    borderRadius: 10,
-    padding: 2,
-  },
-  listFooter: {
-    height: 20,
+    marginTop: 60,
+    paddingHorizontal: 10,
+    paddingBottom: 20,
   },
   title: {
-    fontSize: 18,
+    fontSize: 30,
+    marginTop: -10,
     fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 30,
-    marginTop: 30,
-    right: -5,
+    color: '#ffffff',
+    marginInlineEnd: 20,
   },
-    footerContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'transparent', // Fondo transparente
-    paddingVertical: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  footerContent: {
+  agendaButton: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
+    alignItems: 'center',
+    backgroundColor: 'rgba(13, 233, 241, 1)',
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginTop: -30,
+  },
+  agendaButtonText: {
+    color: '#ffffff',
+    marginLeft: 5,
+    fontWeight: '600',
+  },
+    backButton: {
+    position: 'absolute',
+    top: 580,
+    left: 40,
+    zIndex: 10,
+  },
+  searchContainer: {
     paddingHorizontal: 20,
+    paddingBottom: 15,
+  },
+  searchInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(14, 244, 6, 0.89)',
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    height: 50,
+    marginBottom: 10,
+    marginLeft: 30,
+    marginRight: 30,
+  },
+  searchIcon: {
+    marginRight: 10,
+  },
+  searchPlaceholder: {
+    flex: 1,
+    color: '#aaaaaa',
+    fontSize: 16,
+  },
+  filterContainer: {
+    marginBottom: 40,
+    maxHeight: 50,
+    paddingBottom: 10,
+  },
+  filterButton: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  paddingVertical: 8,
+  paddingHorizontal: 15,
+  borderRadius: 10,
+  marginRight: 10,
+  borderWidth: 2,
+  borderColor: 'transparent',
+  transform: [{ translateY: 0 }], // Estado normal
+},
+filterButtonActive: {
+  borderWidth: 2,
+  borderColor: '#ffffffff',
+  transform: [{ translateY: 8 }], // ✅ "Baja" el botón 3px
+},
+  filterText: {
+    marginLeft: 5,
+    color: '#f9f3f3ff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  calendarContainer: {
+    backgroundColor: 'rgba(15, 14, 14, 0.14)',
+    marginTop: -10,
+    borderRadius: 15,
+    marginHorizontal: 20,
+    marginBottom: 20,
+    overflow: 'hidden',
+  },
+  addButton: {
+    position: 'absolute',
+    top: 580,
+    right: 50,
+    bottom: 30,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#4bec3cf6',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+  },
+  modalContainer: {
+    backgroundColor: '#210af4fb',
+    borderRadius: 12,
+    maxHeight: '95%',
+    paddingVertical: 20,
+  },
+  modalContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 30,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#ffffff',
+  },
+  closeButton: {
+    padding: 5,
+  },
+  inputGroup: {
+    marginBottom: 8,
+  },
+  inputLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#ffffff',
+    marginBottom: 8,
+  },
+  input: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 8,
+    padding: 15,
+    color: '#ffffff',
+    fontSize: 16,
+    marginBottom: 5,
+  },
+  textArea: {
+    minHeight: 100,
+    textAlignVertical: 'top',
+  },
+  typeSelector: {
+    flexDirection: 'row',
+    marginVertical: 1,
+    marginBottom: -5,
+  },
+  typeOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginRight: 8,
+    borderWidth: 2,
+    marginBottom: 20,
+    // Estilo base con elevación/sombra
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.5,
+  },
+  typeOptionSelected: {
+    transform: [{ translateY: 20 }],
+    elevation: 1,
+    shadowOffset: { width: 0, height: 0.5 },
+  },
+  typeOptionText: {
+    marginLeft: 4,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  timeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 8,
+    padding: 15,
+  },
+  timeButtonText: {
+    marginLeft: 10,
+    color: '#ffffff',
+    fontSize: 16,
+  },
+  modalFooter: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  saveButton: {
+    backgroundColor: '#76fd09ff',
+    borderRadius: 8,
+    padding: 15,
+    alignItems: 'center',
+  },
+  saveButtonText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 

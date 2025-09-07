@@ -74,7 +74,7 @@ const EmergencyScreen = ({ navigation }: any) => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [4, 3],
+      // aspect: [4, 3],
       quality: 1,
     });
 
@@ -178,7 +178,7 @@ const EmergencyScreen = ({ navigation }: any) => {
         </TouchableOpacity>
         
         <View style={styles.content}>
-          <Text style={styles.title}>Situaciones en Vía</Text>
+          <Text style={styles.title}>Daños en la Vía</Text>
         </View>
         
         <KeyboardAvoidingView

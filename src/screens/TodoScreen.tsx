@@ -10,10 +10,11 @@ import {
   Image,
   Alert,
   TouchableOpacity,
-  StatusBar
+  StatusBar,
+  Easing
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { AntDesign } from '@expo/vector-icons';
+import { AntDesign, Ionicons } from '@expo/vector-icons';
 import styles, { CARD_WIDTH, SPACING, MARGIN_HORIZONTAL } from './TodoScreen.styles';
 
 interface CardItem {
@@ -23,7 +24,7 @@ interface CardItem {
   title?: string;
   subtitle?: string;
   screenName?: string;
-  image?: string;
+  image?: any;
 }
 
 interface TodoScreenProps {
@@ -37,25 +38,121 @@ const TodoScreen: React.FC<TodoScreenProps> = ({ navigation }) => {
   const scrollViewRef = useRef<ScrollView>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  // Animaciones para el botón de ayuda (help2)
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const rotateAnim = useRef(new Animated.Value(0)).current;
+
+  // Animaciones para el botón de información (InfoApp)
+  const floatAnim = useRef(new Animated.Value(0)).current;
+  const bounceAnim = useRef(new Animated.Value(1)).current;
+
   // Calcula la altura segura para el StatusBar
   const STATUS_BAR_HEIGHT = Platform.OS === 'android' ? (StatusBar.currentHeight || 0) + 10 : 20;
 
-  const demoImages = [
-    'https://cdn-icons-png.flaticon.com/512/3652/3652191.png',
-    'https://cdn-icons-png.flaticon.com/128/4606/4606919.png',
-    'https://cdn-icons-png.flaticon.com/128/805/805680.png',
-    'https://cdn-icons-png.flaticon.com/128/1048/1048334.png',
-    'https://cdn-icons-png.flaticon.com/128/1133/1133816.png',
-    'https://cdn-icons-png.flaticon.com/128/11133/11133672.png'
+  // Efecto para la animación del botón de ayuda (help2)
+  useEffect(() => {
+    // Animación de pulso (crece y se encoge) para help2
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.2,
+          duration: 800,
+          easing: Easing.ease,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 800,
+          easing: Easing.ease,
+          useNativeDriver: true,
+        })
+      ])
+    ).start();
+
+    // Animación de rotación limitada a 30 grados en cada dirección para help2
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(rotateAnim, {
+          toValue: 1,
+          duration: 1000,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(rotateAnim, {
+          toValue: 0,
+          duration: 1000,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        })
+      ])
+    ).start();
+
+    // Animación de flotación (sube y baja) para InfoApp
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatAnim, {
+          toValue: 1,
+          duration: 1500,
+          easing: Easing.inOut(Easing.quad),
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatAnim, {
+          toValue: 0,
+          duration: 1500,
+          easing: Easing.inOut(Easing.quad),
+          useNativeDriver: true,
+        })
+      ])
+    ).start();
+
+    // Animación de rebote para InfoApp
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(bounceAnim, {
+          toValue: 1.1,
+          duration: 800,
+          easing: Easing.ease,
+          useNativeDriver: true,
+        }),
+        Animated.timing(bounceAnim, {
+          toValue: 0.9,
+          duration: 800,
+          easing: Easing.ease,
+          useNativeDriver: true,
+        })
+      ])
+    ).start();
+  }, []);
+
+  // Interpolación para la rotación limitada (-10deg a 10deg) para help2
+  const rotateInterpolate = rotateAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['-5deg', '5deg']
+  });
+
+  // Interpolación para la flotación (sube y baja) para InfoApp
+  const floatInterpolate = floatAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -15] // Se mueve 15px hacia arriba
+  });
+
+  // Importar imágenes locales desde assets
+  const localCardImages = [
+    require('../../assets/imagenTargeta/ProfileScreen3.png'),
+    require('../../assets/imagenTargeta/DailyScreen.png'),
+    require('../../assets/imagenTargeta/PreventiveScreen1.png'),
+    require('../../assets/imagenTargeta/GeneralScreen1.png'),
+    require('../../assets/imagenTargeta/EmergencyScreen.png'),
+    require('../../assets/imagenTargeta/RouteScreen.png'),
   ];
 
   const originalCards: CardItem[] = [
-    { id: '1', title: 'Profile', subtitle: 'Motocicleta \n Datos  ', color: '#33ee0d', screenName: 'Profile', image: demoImages[3] },
-    { id: '2', title: 'Daily', subtitle: 'Actividades \n Diarias', color: '#eb0dee', screenName: 'Daily', image: demoImages[0] },
-    { id: '3', title: 'Preventive', subtitle: 'Mantenimiento preventivo', color: '#0deeda', screenName: 'Preventive', image: demoImages[1] },
-    { id: '4', title: 'Mantenimiento', subtitle: 'General ', color: '#090FFA', screenName: 'General', image: demoImages[5] },
-    { id: '5', title: 'Emergency', subtitle: 'Casos de emergencia', color: '#FF5252', screenName: 'Emergency', image: demoImages[2] },
-    { id: '6', title: 'Route', subtitle: '  Rutas \n  recorridos', color: '#810dee', screenName: 'Route', image: demoImages[4] },
+    { id: '1', title: 'Profile', subtitle: ' Datos \n     Motocicleta   ', color: '#33ee0d', screenName: 'Profile', image: localCardImages[0] },
+    { id: '2', title: 'Daily', subtitle: '  Agéndate  ', color: '#eb0dee', screenName: 'Daily', image: localCardImages[1] },
+    { id: '3', title: 'Preventive', subtitle: 'Mantenimiento preventivo', color: '#0deeda', screenName: 'Preventive', image: localCardImages[2] },
+    { id: '4', title: 'Maintenancey', subtitle: 'Mantenimiento \n General ', color: '#090FFA', screenName: 'General', image: localCardImages[3] },
+    { id: '5', title: 'Emergency', subtitle: 'Percance \nen la Via', color: '#FF5252', screenName: 'Emergency', image: localCardImages[4] },
+    { id: '6', title: 'Route', subtitle: '  Rutas \n  recorridos', color: '#810dee', screenName: 'Route', image: localCardImages[5] },
   ];
 
   const cards = [
@@ -131,6 +228,48 @@ const TodoScreen: React.FC<TodoScreenProps> = ({ navigation }) => {
           <Text style={styles.title}>Documenta la Historia</Text>
         </View>
         
+        {/* Botón con animación para el chatbot (help2) - MANTENIENDO LA ANIMACIÓN ORIGINAL */}
+        <View style={styles.content}>
+          <TouchableOpacity 
+            style={styles.addButton}
+            onPress={() => navigation.navigate('ChatBots')}
+          >
+            <Animated.Image
+              source={require('../../assets/imagen/help2.png')}
+              style={[
+                styles.addButton2,
+                {
+                  transform: [
+                    { scale: pulseAnim },
+                    { rotate: rotateInterpolate }
+                  ]
+                }
+              ]}
+            />
+          </TouchableOpacity>
+        </View>
+        
+        {/* Botón de información de la aplicación (InfoApp) - CON NUEVA ANIMACIÓN */}
+        <View style={styles.content1}>
+          <TouchableOpacity 
+            style={styles.addButton3}
+            onPress={() => navigation.navigate('Info')}  // Navega a la pantalla de información
+          >
+            <Animated.Image
+              source={require('../../assets/imagen/InfoApp.png')}
+              style={[
+                styles.addButton4,
+                {
+                  transform: [
+                    { translateY: floatInterpolate },
+                    { scale: bounceAnim }
+                  ]
+                }
+              ]}
+            />
+          </TouchableOpacity>
+        </View>
+        
         <View style={styles.container}>
           <ScrollView
             ref={scrollViewRef}
@@ -169,12 +308,21 @@ const TodoScreen: React.FC<TodoScreenProps> = ({ navigation }) => {
                         opacity,
                         marginLeft: index === 0 ? MARGIN_HORIZONTAL : SPACING,
                         marginRight: index === cards.length - 1 ? MARGIN_HORIZONTAL : SPACING,
+                        overflow: 'hidden',
                       },
                     ]}
                   >
-                    {card.image && <Image source={{ uri: card.image }} style={styles.cardImage} resizeMode="contain" />}
-                    <Text style={styles.cardTitle}>{card.title}</Text>
-                    <Text style={styles.cardSubtitle}>{card.subtitle}</Text>
+                    {card.image && (
+                      <Image 
+                        source={card.image} 
+                        style={styles.cardImage} 
+                        resizeMode="cover"
+                      />
+                    )}
+                    <View style={styles.textContainer}>
+                      <Text style={styles.cardTitle}>{card.title}</Text>
+                      <Text style={styles.cardSubtitle}>{card.subtitle}</Text>
+                    </View>
                   </Animated.View>
                 </TouchableOpacity>
               );

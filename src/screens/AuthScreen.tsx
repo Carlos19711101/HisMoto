@@ -84,7 +84,7 @@ const AuthScreen = ({ navigation }: any) => {
                 style={[styles.button, styles.googleButton]}
                 onPress={() => navigation.navigate('Todo')}
               >
-                <Text style={styles.buttonText}>Sin Datos</Text>
+                <Text style={styles.buttonText}>Locos por las motos</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.registerLink}

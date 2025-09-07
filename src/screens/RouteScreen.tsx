@@ -75,7 +75,7 @@ const RouteScreen = ({ navigation }: any) => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [4, 3],
+      // aspect: [4, 3],
       quality: 1,
     });
 
@@ -141,6 +141,11 @@ const RouteScreen = ({ navigation }: any) => {
     }
   };
 
+  // Función para navegar a la pantalla de búsqueda de dirección
+  const navigateToSearchAddress = () => {
+    navigation.navigate('SearchAddress'); // Asegúrate de tener esta pantalla definida en tu navegador
+  };
+
   return (
     <>
       {/* StatusBar transparente */}
@@ -163,11 +168,20 @@ const RouteScreen = ({ navigation }: any) => {
             }]} 
             onPress={() => navigation.navigate('Todo')}
           >
-            <AntDesign name="doubleleft" size={20} color="white" style={styles.backButtonIcon} />
+            <AntDesign name="doubleleft" size={30} color="white" style={styles.backButtonIcon} />
           </TouchableOpacity>
           
           <View style={styles.content}>
             <Text style={styles.title}>Mis Rutas</Text>
+            
+            {/* Botón para buscar dirección */}
+            <TouchableOpacity 
+              style={styles.searchAddressButton}
+              onPress={navigateToSearchAddress}
+            >
+              <Ionicons name="search" size={20} color="white" style={styles.searchIcon} />
+              <Text style={styles.searchAddressText}>Buscar dirección</Text>
+            </TouchableOpacity>
           </View>
           
           <KeyboardAvoidingView
