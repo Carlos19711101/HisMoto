@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
-  Text,
   TextInput,
+  Text,
   TouchableOpacity,
   Alert,
   SafeAreaView,
@@ -10,7 +10,7 @@ import {
   Animated,
   Modal,
   Platform,
-  StatusBar
+  StatusBar,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -19,6 +19,8 @@ import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as Notifications from 'expo-notifications';
 import styles from './AgendaScreen.styles';
+
+import { agentService } from '../services/agentService';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -60,6 +62,7 @@ const AgendaScreen = () => {
   const [filterType, setFilterType] = useState<AppointmentType | 'all'>('all');
   const [showReminderModal, setShowReminderModal] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const [agendaAppointments, setAgendaAppointments] = useState<any[]>([]);
 
   useEffect(() => {
     loadAppointments();
@@ -71,17 +74,39 @@ const AgendaScreen = () => {
     };
   }, []);
 
-  const setupNotificationListeners = () => {
-    const subscriptions = [
-      Notifications.addNotificationReceivedListener(notification => {
-        console.log('Notificación recibida:', notification);
-      }),
-      Notifications.addNotificationResponseReceivedListener(response => {
-        console.log('Usuario interactuó con la notificación:', response);
-      }),
-    ];
-    return subscriptions;
-  };
+  // Nueva integración para cargar agenda completa y reportar agente
+  useEffect(() => {
+    const loadAgenda = async () => {
+      try {
+        // Aquí deberías implementar tu función real de carga, ejemplo:
+        const loadedAgenda: Appointment[] = await cargarAgendaCompleta();
+
+        setAgendaAppointments(loadedAgenda);
+
+        const today = new Date();
+        const todayApps = loadedAgenda.filter(app => new Date(app.date).toDateString() === today.toDateString());
+
+        await agentService.saveScreenState('Agenda', {
+          appointments: loadedAgenda,
+          total: loadedAgenda.length,
+          today: todayApps.length,
+          upcoming: loadedAgenda.filter(app => new Date(app.date) > today).length,
+        });
+      } catch (error) {
+        console.error('Error loading agenda:', error);
+      }
+    };
+    loadAgenda();
+  }, []);
+
+  const setupNotificationListeners = () => [
+    Notifications.addNotificationReceivedListener(notification => {
+      console.log('Notificación recibida:', notification);
+    }),
+    Notifications.addNotificationResponseReceivedListener(response => {
+      console.log('Usuario interactuó con la notificación:', response);
+    }),
+  ];
 
   const registerForPushNotifications = async () => {
     try {
@@ -124,7 +149,7 @@ const AgendaScreen = () => {
         }));
         setAppointments(loadedAppointments);
 
-        // Reprogramar notificaciones para citas futuras
+        // Reprogramar notificaciones
         for (const app of loadedAppointments) {
           if (app.reminder && app.reminderTime && !app.completed) {
             await schedulePushNotification(app);
@@ -139,9 +164,8 @@ const AgendaScreen = () => {
 
   const schedulePushNotification = async (app: Appointment) => {
     try {
-      if (!app.reminderTime) return;
+      if (!app.reminderTime) return null;
 
-      // Cancelar notificación existente si hay una
       if (app.notificationId) {
         await Notifications.cancelScheduledNotificationAsync(app.notificationId);
       }
@@ -149,13 +173,11 @@ const AgendaScreen = () => {
       const now = new Date();
       const reminderTime = new Date(app.reminderTime);
 
-      // Verificar si el recordatorio es en el futuro
       if (reminderTime <= now) {
         console.log('El recordatorio ya pasó, no se programa notificación');
         return null;
       }
 
-      // Calcular la diferencia en segundos CORRECTAMENTE
       const secondsUntilReminder = Math.floor((reminderTime.getTime() - now.getTime()) / 1000);
 
       if (secondsUntilReminder > 0) {
@@ -173,13 +195,10 @@ const AgendaScreen = () => {
             channelId: 'default',
           },
         });
-        
         console.log(`Notificación programada para ${formatTime(reminderTime)} (en ${secondsUntilReminder} segundos)`);
         return notificationId;
-      } else {
-        console.log('El recordatorio ya pasó, no se programa notificación');
-        return null;
       }
+      return null;
     } catch (error) {
       console.error('Error al programar notificación:', error);
       return null;
@@ -288,44 +307,30 @@ const AgendaScreen = () => {
       return app;
     });
     saveAppointments(updatedApps);
+    // Agente registra acción
+    await agentService.recordAppAction('Cita completada', 'AgendaScreen', { appointmentId: id });
   };
 
   const setReminder = async (app: Appointment, minutes: number) => {
     try {
-      // Calcular el tiempo del recordatorio (fecha de la cita - minutos)
-      const reminderTime = new Date(app.date.getTime() - (minutes * 60 * 1000));
-      
-      console.log('Fecha cita:', app.date);
-      console.log('Recordatorio calculado:', reminderTime);
-      console.log('Minutos antes:', minutes);
-
+      const reminderTime = new Date(app.date.getTime() - minutes * 60000);
       const notificationId = await schedulePushNotification({
         ...app,
         reminderTime,
         reminder: true,
         reminderMinutes: minutes,
       });
-
       if (notificationId) {
         const updatedApps = appointments.map(a =>
           a.id === app.id
             ? { ...a, reminder: true, reminderTime, reminderMinutes: minutes, notificationId }
             : a
         );
-
         saveAppointments(updatedApps);
         setShowReminderModal(false);
-
-        Alert.alert(
-          'Recordatorio configurado', 
-          `Te recordaremos ${minutes} minutos antes de tu cita.`,
-          [{ text: 'OK' }]
-        );
+        Alert.alert('Recordatorio configurado', `Te recordaremos ${minutes} minutos antes de tu cita.`, [{ text: 'OK' }]);
       } else {
-        Alert.alert(
-          'Error', 
-          'No se pudo programar el recordatorio. La fecha puede ser en el pasado.'
-        );
+        Alert.alert('Error', 'No se pudo programar el recordatorio. La fecha puede ser en el pasado.');
       }
     } catch (error) {
       console.error('Error al configurar recordatorio:', error);
@@ -335,8 +340,7 @@ const AgendaScreen = () => {
 
   const filteredAppointments = appointments
     .filter(app => {
-      const matchesSearch = app.title.toLowerCase().includes(searchText.toLowerCase()) ||
-        app.description.toLowerCase().includes(searchText.toLowerCase());
+      const matchesSearch = app.title.toLowerCase().includes(searchText.toLowerCase()) || app.description.toLowerCase().includes(searchText.toLowerCase());
       const matchesType = filterType === 'all' || app.type === filterType;
       return matchesSearch && matchesType;
     })
@@ -344,7 +348,6 @@ const AgendaScreen = () => {
 
   const AppointmentCard = ({ app }: { app: Appointment }) => {
     const fadeAnim = useRef(new Animated.Value(0)).current;
-
     useEffect(() => {
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -362,23 +365,13 @@ const AgendaScreen = () => {
             app.completed && styles.completedCard,
           ]}
         >
-          <TouchableOpacity
-            style={styles.deleteIcon}
-            onPress={() => handleDelete(app.id)}
-          >
+          <TouchableOpacity style={styles.deleteIcon} onPress={() => handleDelete(app.id)}>
             <Ionicons name="trash" size={20} color="#FF6B6B" />
           </TouchableOpacity>
-
           <View style={styles.appointmentHeader}>
             <View style={styles.typeIndicator}>
-              <Ionicons
-                name={getTypeIcon(app.type) as any}
-                size={16}
-                color={getTypeColor(app.type)}
-              />
-              <Text style={[styles.typeText, { color: getTypeColor(app.type) }]}>
-                {app.type.toUpperCase()}
-              </Text>
+              <Ionicons name={getTypeIcon(app.type) as any} size={16} color={getTypeColor(app.type)} />
+              <Text style={[styles.typeText, { color: getTypeColor(app.type) }]}>{app.type.toUpperCase()}</Text>
             </View>
             {app.completed && (
               <View style={styles.completedBadge}>
@@ -386,12 +379,8 @@ const AgendaScreen = () => {
               </View>
             )}
           </View>
-
           <Text style={styles.appointmentTitle}>{app.title}</Text>
-          {app.description && (
-            <Text style={styles.appointmentDescription}>{app.description}</Text>
-          )}
-
+          {app.description && <Text style={styles.appointmentDescription}>{app.description}</Text>}
           <View style={styles.timeContainer}>
             <Ionicons name="time" size={14} color="#ffffff80" />
             <Text style={styles.timeText}>
@@ -399,16 +388,12 @@ const AgendaScreen = () => {
               {app.endDate && ` - ${formatTime(app.endDate)}`}
             </Text>
           </View>
-
           {app.reminder && app.reminderTime && (
             <View style={styles.reminderContainer}>
               <Ionicons name="notifications" size={14} color="#FFD700" />
-              <Text style={styles.reminderText}>
-                {formatReminderText(app)}
-              </Text>
+              <Text style={styles.reminderText}>{formatReminderText(app)}</Text>
             </View>
           )}
-
           <View style={styles.appointmentActions}>
             {!app.completed && (
               <>
@@ -422,10 +407,7 @@ const AgendaScreen = () => {
                   <Ionicons name="notifications" size={18} color="#FFD700" />
                   <Text style={styles.actionText}>Recordar</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => markAsCompleted(app.id)}
-                  style={styles.completeButton}
-                >
+                <TouchableOpacity onPress={() => markAsCompleted(app.id)} style={styles.completeButton}>
                   <Ionicons name="checkmark" size={18} color="#4ECDC4" />
                   <Text style={styles.actionText}>Completar</Text>
                 </TouchableOpacity>
@@ -440,28 +422,22 @@ const AgendaScreen = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" backgroundColor="#090FFA" />
-      <LinearGradient
-        colors={['#090FFA', '#0eb9e3', '#58fd03']}
+      <LinearGradient 
+        colors={['#020479ff', '#0eb9e3', '#58fd03']}
+        start={{ x: 0, y: 0.2 }}
+        end={{ x: 1, y: 1 }}
         style={styles.container}
       >
         <View style={styles.header}>
-          <TouchableOpacity
-            onPress={() => navigation.navigate('Daily')}
-            style={styles.backButton}
-          >
+          <TouchableOpacity onPress={() => navigation.navigate('Daily')} style={styles.backButton}>
             <Ionicons name="arrow-back" size={24} color="#ffffff" />
           </TouchableOpacity>
           <Text style={styles.title}>Mis Citas</Text>
-
-          <TouchableOpacity
-            onPress={() => navigation.navigate('Daily')}
-            style={styles.newAppointmentButton}
-          >
+          <TouchableOpacity onPress={() => navigation.navigate('Daily')} style={styles.newAppointmentButton}>
             <Ionicons name="add" size={24} color="#ffffff" />
             <Text style={styles.newAppointmentButtonText}>Nueva</Text>
           </TouchableOpacity>
         </View>
-
         <View style={styles.searchContainer}>
           <View style={styles.searchInputContainer}>
             <Ionicons name="search" size={20} color="#aaaaaa" style={styles.searchIcon} />
@@ -485,43 +461,27 @@ const AgendaScreen = () => {
             >
               <Text style={styles.filterText}>Todos</Text>
             </TouchableOpacity>
-
             {(['personal', 'work', 'medical', 'urgent', 'other'] as AppointmentType[]).map(type => (
               <TouchableOpacity
                 key={type}
                 style={[
                   styles.filterButton,
                   filterType === type && styles.filterButtonActive,
-                  {
-                    backgroundColor: getTypeLightColor(type),
-                    borderColor: getTypeColor(type),
-                  }
+                  { backgroundColor: getTypeLightColor(type), borderColor: getTypeColor(type) },
                 ]}
                 onPress={() => setFilterType(type)}
               >
-                <Ionicons
-                  name={getTypeIcon(type) as any}
-                  size={16}
-                  color={getTypeColor(type)}
-                />
-                <Text style={[styles.filterText, { color: getTypeColor(type) }]}>
-                  {type.charAt(0).toUpperCase() + type.slice(1)}
-                </Text>
+                <Ionicons name={getTypeIcon(type) as any} size={16} color={getTypeColor(type)} />
+                <Text style={[styles.filterText, { color: getTypeColor(type) }]}>{type.charAt(0).toUpperCase() + type.slice(1)}</Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
         </View>
-
         <View style={styles.appointmentsContainer}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>
-              Todas mis citas
-            </Text>
-            <Text style={styles.appointmentCount}>
-              {filteredAppointments.length} citas
-            </Text>
+            <Text style={styles.sectionTitle}>Todas mis citas</Text>
+            <Text style={styles.appointmentCount}>{filteredAppointments.length} citas</Text>
           </View>
-
           <ScrollView style={styles.appointmentsList}>
             {filteredAppointments.length === 0 ? (
               <View style={styles.emptyState}>
@@ -532,25 +492,16 @@ const AgendaScreen = () => {
                     : 'No hay citas programadas'}
                 </Text>
                 {(searchText || filterType !== 'all') && (
-                  <TouchableOpacity
-                    style={styles.clearFiltersButton}
-                    onPress={() => {
-                      setSearchText('');
-                      setFilterType('all');
-                    }}
-                  >
+                  <TouchableOpacity style={styles.clearFiltersButton} onPress={() => { setSearchText(''); setFilterType('all'); }}>
                     <Text style={styles.clearFiltersText}>Limpiar filtros</Text>
                   </TouchableOpacity>
                 )}
               </View>
             ) : (
-              filteredAppointments.map(app => (
-                <AppointmentCard key={app.id} app={app} />
-              ))
+              filteredAppointments.map((app) => <AppointmentCard key={app.id} app={app} />)
             )}
           </ScrollView>
         </View>
-
         <Modal
           visible={showReminderModal}
           transparent={true}
@@ -560,28 +511,19 @@ const AgendaScreen = () => {
           <View style={styles.reminderModalOverlay}>
             <View style={styles.reminderModalContainer}>
               <Text style={styles.reminderModalTitle}>Configurar Recordatorio</Text>
-              <Text style={styles.reminderModalText}>
-                ¿Cuándo quieres que te recordemos esta cita?
-              </Text>
-
+              <Text style={styles.reminderModalText}>¿Cuándo quieres que te recordemos esta cita?</Text>
               <View style={styles.reminderOptions}>
-                {[5, 10, 15, 30, 60, 120].map(minutes => (
+                {[5, 10, 15, 30, 60, 120].map((min) => (
                   <TouchableOpacity
-                    key={minutes}
+                    key={min}
                     style={styles.reminderOption}
-                    onPress={() => selectedAppointment && setReminder(selectedAppointment, minutes)}
+                    onPress={() => selectedAppointment && setReminder(selectedAppointment, min)}
                   >
-                    <Text style={styles.reminderOptionText}>
-                      {minutes} minutos antes
-                    </Text>
+                    <Text style={styles.reminderOptionText}>{min} minutos antes</Text>
                   </TouchableOpacity>
                 ))}
               </View>
-
-              <TouchableOpacity
-                style={styles.reminderCancelButton}
-                onPress={() => setShowReminderModal(false)}
-              >
+              <TouchableOpacity style={styles.reminderCancelButton} onPress={() => setShowReminderModal(false)}>
                 <Text style={styles.reminderCancelText}>Cancelar</Text>
               </TouchableOpacity>
             </View>
@@ -593,3 +535,7 @@ const AgendaScreen = () => {
 };
 
 export default AgendaScreen;
+function cargarAgendaCompleta(): Appointment[] | PromiseLike<Appointment[]> {
+  throw new Error('Function not implemented.');
+}
+

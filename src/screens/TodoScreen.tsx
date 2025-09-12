@@ -38,103 +38,85 @@ const TodoScreen: React.FC<TodoScreenProps> = ({ navigation }) => {
   const scrollViewRef = useRef<ScrollView>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Animaciones para el botón de ayuda (help2)
-  const pulseAnim = useRef(new Animated.Value(1)).current;
-  const rotateAnim = useRef(new Animated.Value(0)).current;
-
-  // Animaciones para el botón de información (InfoApp)
-  const floatAnim = useRef(new Animated.Value(0)).current;
-  const bounceAnim = useRef(new Animated.Value(1)).current;
+  // Animaciones para el efecto de escala alternada perfectamente sincronizada
+  const helpScaleAnim = useRef(new Animated.Value(1)).current;
+  const infoScaleAnim = useRef(new Animated.Value(0.3)).current;
+  const helpOpacityAnim = useRef(new Animated.Value(1)).current;
+  const infoOpacityAnim = useRef(new Animated.Value(0)).current;
 
   // Calcula la altura segura para el StatusBar
   const STATUS_BAR_HEIGHT = Platform.OS === 'android' ? (StatusBar.currentHeight || 0) + 10 : 20;
 
-  // Efecto para la animación del botón de ayuda (help2)
+  // Efecto para la animación de escala alternada perfectamente sincronizada
   useEffect(() => {
-    // Animación de pulso (crece y se encoge) para help2
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 1.2,
-          duration: 800,
-          easing: Easing.ease,
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 800,
-          easing: Easing.ease,
-          useNativeDriver: true,
-        })
-      ])
-    ).start();
-
-    // Animación de rotación limitada a 30 grados en cada dirección para help2
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(rotateAnim, {
-          toValue: 1,
-          duration: 1000,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
-        Animated.timing(rotateAnim, {
-          toValue: 0,
-          duration: 1000,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        })
-      ])
-    ).start();
-
-    // Animación de flotación (sube y baja) para InfoApp
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(floatAnim, {
-          toValue: 1,
-          duration: 1500,
+    // Duración de cada transición
+    const DURATION = 2000;
+    
+    // Animación para help2 - comienza visible y en tamaño normal
+    const helpAnimation = Animated.sequence([
+      // Se hace pequeño y desaparece mientras InfoApp crece y aparece
+      Animated.parallel([
+        Animated.timing(helpScaleAnim, {
+          toValue: 0.3,
+          duration: DURATION,
           easing: Easing.inOut(Easing.quad),
           useNativeDriver: true,
         }),
-        Animated.timing(floatAnim, {
+        Animated.timing(helpOpacityAnim, {
           toValue: 0,
-          duration: 1500,
+          duration: DURATION,
+          easing: Easing.inOut(Easing.quad),
+          useNativeDriver: true,
+        }),
+        Animated.timing(infoScaleAnim, {
+          toValue: 1,
+          duration: DURATION,
+          easing: Easing.inOut(Easing.quad),
+          useNativeDriver: true,
+        }),
+        Animated.timing(infoOpacityAnim, {
+          toValue: 1,
+          duration: DURATION,
           easing: Easing.inOut(Easing.quad),
           useNativeDriver: true,
         })
-      ])
-    ).start();
-
-    // Animación de rebote para InfoApp
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(bounceAnim, {
-          toValue: 1.1,
-          duration: 800,
-          easing: Easing.ease,
+      ]),
+      // Pausa breve en el estado de cambio
+      Animated.delay(1000),
+      // Vuelve a crecer y aparecer mientras InfoApp se reduce y desaparece
+      Animated.parallel([
+        Animated.timing(helpScaleAnim, {
+          toValue: 1,
+          duration: DURATION,
+          easing: Easing.inOut(Easing.quad),
           useNativeDriver: true,
         }),
-        Animated.timing(bounceAnim, {
-          toValue: 0.9,
-          duration: 800,
-          easing: Easing.ease,
+        Animated.timing(helpOpacityAnim, {
+          toValue: 1,
+          duration: DURATION,
+          easing: Easing.inOut(Easing.quad),
+          useNativeDriver: true,
+        }),
+        Animated.timing(infoScaleAnim, {
+          toValue: 0.3,
+          duration: DURATION,
+          easing: Easing.inOut(Easing.quad),
+          useNativeDriver: true,
+        }),
+        Animated.timing(infoOpacityAnim, {
+          toValue: 0,
+          duration: DURATION,
+          easing: Easing.inOut(Easing.quad),
           useNativeDriver: true,
         })
-      ])
-    ).start();
+      ]),
+      // Pausa antes de repetir el ciclo
+      Animated.delay(1000),
+    ]);
+
+    // Crear loop infinito
+    Animated.loop(helpAnimation).start();
   }, []);
-
-  // Interpolación para la rotación limitada (-10deg a 10deg) para help2
-  const rotateInterpolate = rotateAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['-5deg', '5deg']
-  });
-
-  // Interpolación para la flotación (sube y baja) para InfoApp
-  const floatInterpolate = floatAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, -15] // Se mueve 15px hacia arriba
-  });
 
   // Importar imágenes locales desde assets
   const localCardImages = [
@@ -147,12 +129,12 @@ const TodoScreen: React.FC<TodoScreenProps> = ({ navigation }) => {
   ];
 
   const originalCards: CardItem[] = [
-    { id: '1', title: 'Profile', subtitle: ' Datos \n     Motocicleta   ', color: '#33ee0d', screenName: 'Profile', image: localCardImages[0] },
-    { id: '2', title: 'Daily', subtitle: '  Agéndate  ', color: '#eb0dee', screenName: 'Daily', image: localCardImages[1] },
-    { id: '3', title: 'Preventive', subtitle: 'Mantenimiento preventivo', color: '#0deeda', screenName: 'Preventive', image: localCardImages[2] },
-    { id: '4', title: 'Maintenancey', subtitle: 'Mantenimiento \n General ', color: '#090FFA', screenName: 'General', image: localCardImages[3] },
-    { id: '5', title: 'Emergency', subtitle: 'Percance \nen la Via', color: '#FF5252', screenName: 'Emergency', image: localCardImages[4] },
-    { id: '6', title: 'Route', subtitle: '  Rutas \n  recorridos', color: '#810dee', screenName: 'Route', image: localCardImages[5] },
+    { id: '1', title: 'Profile', subtitle: ' Datos \n     Motocicleta   ', color: 'transparent', screenName: 'Profile', image: localCardImages[0] },
+    { id: '2', title: 'Daily', subtitle: '  Agéndate  ', color: 'transparent', screenName: 'Daily', image: localCardImages[1] },
+    { id: '3', title: 'Preventive', subtitle: 'Mantenimiento preventivo', color: 'transparent', screenName: 'Preventive', image: localCardImages[2] },
+    { id: '4', title: 'Maintenancey', subtitle: 'Mantenimiento \n General ', color: 'transparent', screenName: 'General', image: localCardImages[3] },
+    { id: '5', title: 'Emergency', subtitle: 'Percance \nen la Via', color: 'transparent', screenName: 'Emergency', image: localCardImages[4] },
+    { id: '6', title: 'Route', subtitle: '  Rutas \n  recorridos', color: 'transparent', screenName: 'Route', image: localCardImages[5] },
   ];
 
   const cards = [
@@ -214,7 +196,9 @@ const TodoScreen: React.FC<TodoScreenProps> = ({ navigation }) => {
       />
       
       <LinearGradient 
-        colors={['#090FFA','#88D3CE', '#6E45E2']} 
+        colors={['#1A2980', '#26D0CE']}
+        start={{ x: 0.1, y: 0.1 }}
+        end={{ x: 0.9, y: 0.9 }}
         style={[styles.containerGlobal, { paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }]}
       >
         <TouchableOpacity 
@@ -228,11 +212,11 @@ const TodoScreen: React.FC<TodoScreenProps> = ({ navigation }) => {
           <Text style={styles.title}>Documenta la Historia</Text>
         </View>
         
-        {/* Botón con animación para el chatbot (help2) - MANTENIENDO LA ANIMACIÓN ORIGINAL */}
+        {/* Botón con animación de escala para el chatbot (help2) */}
         <View style={styles.content}>
           <TouchableOpacity 
             style={styles.addButton}
-            onPress={() => navigation.navigate('ChatBots')}
+            onPress={() => navigation.navigate('ChatBots')}  // Navega a la pantalla del chatbot
           >
             <Animated.Image
               source={require('../../assets/imagen/help2.png')}
@@ -240,16 +224,16 @@ const TodoScreen: React.FC<TodoScreenProps> = ({ navigation }) => {
                 styles.addButton2,
                 {
                   transform: [
-                    { scale: pulseAnim },
-                    { rotate: rotateInterpolate }
-                  ]
+                    { scale: helpScaleAnim }
+                  ],
+                  opacity: helpOpacityAnim
                 }
               ]}
             />
           </TouchableOpacity>
         </View>
         
-        {/* Botón de información de la aplicación (InfoApp) - CON NUEVA ANIMACIÓN */}
+        {/* Botón de información de la aplicación (InfoApp) con animación opuesta */}
         <View style={styles.content1}>
           <TouchableOpacity 
             style={styles.addButton3}
@@ -261,9 +245,9 @@ const TodoScreen: React.FC<TodoScreenProps> = ({ navigation }) => {
                 styles.addButton4,
                 {
                   transform: [
-                    { translateY: floatInterpolate },
-                    { scale: bounceAnim }
-                  ]
+                    { scale: infoScaleAnim }
+                  ],
+                  opacity: infoOpacityAnim
                 }
               ]}
             />

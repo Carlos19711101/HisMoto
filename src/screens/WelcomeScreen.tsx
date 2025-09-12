@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Alert, BackHandler
 import { LinearGradient } from 'expo-linear-gradient';
 import { AntDesign } from '@expo/vector-icons';
 
+
 const WelcomeScreen = ({ navigation }: any) => {
   const exitApp = () => {
     Alert.alert(

@@ -2,6 +2,7 @@ import React from 'react';
 import { StatusBar, Platform, StyleSheet, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 // Imports de las pantallas
 import WelcomeScreen from './src/screens/WelcomeScreen';
@@ -52,6 +53,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
   return (
+  <SafeAreaProvider>
     <View style={styles.appContainer}>
       {/* Configuración global del StatusBar */}
       <StatusBar
@@ -87,6 +89,7 @@ export default function App() {
         </Stack.Navigator>
       </NavigationContainer>
     </View>
+  </SafeAreaProvider>
   );
 }
 

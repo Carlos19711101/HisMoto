@@ -1,4 +1,4 @@
-import { StyleSheet, Dimensions, Platform, StatusBar } from 'react-native';
+import { StyleSheet, Dimensions, Platform } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -8,19 +8,19 @@ const styles = StyleSheet.create({
   },
   gradient: {
     flex: 1,
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    paddingTop: Platform.OS === 'android' ? 25 : 0,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255,255,255,0.1)',
   },
   backButton: {
-    padding: 5,
+    padding: 8,
   },
   headerContent: {
     flex: 1,
@@ -36,19 +36,19 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   menuButton: {
-    padding: 5,
+    padding: 8,
   },
   chatContainer: {
     flex: 1,
-    paddingHorizontal: 15,
+    paddingHorizontal: 16,
   },
   messagesList: {
-    paddingVertical: 20,
+    paddingVertical: 16,
   },
   messageContainer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    marginBottom: 15,
+    marginBottom: 16,
   },
   userMessageContainer: {
     justifyContent: 'flex-end',
@@ -57,34 +57,33 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   botAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#6E45E2',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255,255,255,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 8,
     overflow: 'hidden',
   },
   botAvatarImage: {
-    width: 45,
-    height: 35,
-    borderRadius: 15,
+    width: 36,
+    height: 36,
   },
   userAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: '#090FFA',
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 8,
   },
   messageBubble: {
-    maxWidth: '70%',
+    maxWidth: '75%',
     padding: 12,
     borderRadius: 18,
-    marginHorizontal: 5,
+    marginHorizontal: 4,
   },
   userMessageBubble: {
     backgroundColor: '#090FFA',
@@ -106,7 +105,7 @@ const styles = StyleSheet.create({
   },
   timestamp: {
     fontSize: 10,
-    marginTop: 4,
+    marginTop: 8,
     opacity: 0.7,
   },
   userTimestamp: {
@@ -117,7 +116,40 @@ const styles = StyleSheet.create({
     color: 'rgba(0,0,0,0.5)',
     textAlign: 'left',
   },
-  // Estilos para el botón de mostrar preguntas
+
+  // NUEVOS ESTILOS PARA BOTONES DE ACCIÓN
+  actionButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.1)',
+  },
+  actionButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#6E45E2',
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    minWidth: 80,
+    flex: 1,
+    marginHorizontal: 4,
+  },
+  listeningButton: {
+    backgroundColor: '#FF4444',
+  },
+  actionButtonText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: '500',
+    marginTop: 4,
+    textAlign: 'center',
+  },
+
+  // Estilos para preguntas frecuentes (mejorados)
   showQuestionsButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -137,7 +169,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginHorizontal: 8,
   },
-  // Estilos para el panel de preguntas
   questionsPanel: {
     backgroundColor: 'white',
     marginHorizontal: 15,
@@ -196,8 +227,10 @@ const styles = StyleSheet.create({
     color: '#333',
     lineHeight: 18,
   },
+
+  // Input container (mejorado)
   inputContainer: {
-    padding: 15,
+    padding: 16,
     borderTopWidth: 1,
     borderTopColor: 'rgba(255,255,255,0.1)',
     backgroundColor: 'rgba(255,255,255,0.05)',
@@ -207,7 +240,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.9)',
     borderRadius: 25,
-    paddingHorizontal: 15,
+    paddingHorizontal: 16,
     minHeight: 50,
   },
   textInput: {
@@ -221,12 +254,68 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#6E45E2',
+    backgroundColor: '#090FFA',
     justifyContent: 'center',
     alignItems: 'center',
+    marginLeft: 8,
   },
   sendButtonDisabled: {
     backgroundColor: '#CCC',
+  },
+
+  // Estilos adicionales para mejor UX
+  quickActionsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    padding: 10,
+    marginBottom: 10,
+  },
+  quickActionButton: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    padding: 8,
+    borderRadius: 15,
+    margin: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  quickActionText: {
+    color: 'white',
+    fontSize: 12,
+  },
+
+  // Estado de carga o procesamiento
+  statusContainer: {
+    padding: 8,
+    alignItems: 'center',
+  },
+  statusText: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 12,
+  },
+
+  // Modal de pantallas
+  screensModal: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  screensModalContent: {
+    backgroundColor: 'white',
+    borderRadius: 15,
+    padding: 20,
+    width: '90%',
+    maxHeight: '80%',
+  },
+  screenButton: {
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  screenButtonText: {
+    fontSize: 16,
+    color: '#333',
   },
 });
 

@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   View,
-  Text,
   TextInput,
+  Text,
   TouchableOpacity,
   Alert,
   Platform,
@@ -22,6 +22,8 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import styles from './DailyScreen.styles';
 
+import { agentService } from '../services/agentService';
+
 type AppointmentType = 'personal' | 'work' | 'medical' | 'urgent' | 'other';
 
 interface Appointment {
@@ -32,16 +34,7 @@ interface Appointment {
   endDate?: Date;
   type: AppointmentType;
   reminder: boolean;
-  reminderTime?: Date;
   completed: boolean;
-}
-
-interface MarkedDates {
-  [date: string]: {
-    dots?: { key: string; color: string }[];
-    selected?: boolean;
-    selectedColor?: string;
-  };
 }
 
 type RootStackParamList = {
@@ -56,71 +49,122 @@ const DailyScreen = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [showModal, setShowModal] = useState(false);
+
   const [filterType, setFilterType] = useState<AppointmentType | 'all'>('all');
-
-  // Estados para control de DateTimePicker
-  const [showPicker, setShowPicker] = useState<boolean>(false);
-  const [pickerMode, setPickerMode] = useState<'date' | 'time'>('date');
-
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [selectedDateTime, setSelectedDateTime] = useState(new Date());
   const [appointmentType, setAppointmentType] = useState<AppointmentType>('personal');
+  const [showPicker, setShowPicker] = useState(false);
+  const [pickerMode, setPickerMode] = useState<'date' | 'time'>('date');
 
+  // Carga inicial con agente
   useEffect(() => {
+    const loadAppointments = async () => {
+      try {
+        const stored = await AsyncStorage.getItem(STORAGE_KEY);
+        let loadedAppointments: Appointment[] = [];
+        if (stored) {
+          loadedAppointments = JSON.parse(stored).map((item: any) => ({
+            ...item,
+            date: new Date(item.date),
+          }));
+          setAppointments(loadedAppointments);
+        }
+        
+        // ✅ CONEXIÓN CON EL AGENTE
+        await agentService.saveScreenState('Daily', {
+          appointments: loadedAppointments,
+          total: loadedAppointments.length,
+          nextAppointment: loadedAppointments[0] || null,
+        });
+        
+        await agentService.recordAppAction(
+          'Citas diarias cargadas', 
+          'DailyScreen',
+          { count: loadedAppointments.length }
+        );
+      } catch (error) {
+        console.error('Error loading appointments:', error);
+      }
+    };
     loadAppointments();
   }, []);
 
-  const loadAppointments = async () => {
-    try {
-      const stored = await AsyncStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        const loadedAppointments: Appointment[] = parsed.map((app: any) => ({
-          ...app,
-          date: new Date(app.date),
-          endDate: app.endDate ? new Date(app.endDate) : undefined,
-          reminderTime: app.reminderTime ? new Date(app.reminderTime) : undefined,
-        }));
-        setAppointments(loadedAppointments);
-      }
-    } catch (e) {
-      console.error('Error loading appointments:', e);
-      Alert.alert('Error', 'No se pudieron cargar las citas');
-    }
-  };
-
+  // Guardar citas con integración en agente
   const saveAppointments = async (apps: Appointment[]) => {
     try {
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(apps));
-    } catch (e) {
-      console.error('Error saving appointments:', e);
-      Alert.alert('Error', 'No se pudieron guardar las citas');
+      setAppointments(apps);
+      
+      // ✅ CONEXIÓN CON EL AGENTE
+      await agentService.saveScreenState('Daily', {
+        appointments: apps,
+        total: apps.length,
+        nextAppointment: apps[0] || null,
+      });
+    } catch {
+      Alert.alert('Error', 'No se pudo guardar la cita');
     }
   };
-    // Funciones para obtener colores icono de las distintas citas
-  const getTypeColor = (type: AppointmentType): string => {
-  const colors = {
-    personal: '#f8fc0bff',    // Amarillo
-    work: '#0af5e5fc',        // Turquesa
-    medical: '#deddfae2',    // Rojo
-    urgent: '#f60707ff',      // Morado
-    other: '#42fb0ea8',     // Verde 
-  };
-  return colors[type];
-};
- // Funciones para obtener colores para el fondo del boton de las distintas citas 
-const getTypeLightColor = (type: AppointmentType): string => {
-  const lightColors = {
-    personal: '#0c0c0c',  // Amarillo claro
-    work: '#0c0c0c',      // Turquesa claro
-    medical: '#0c0c0c',   // Rojo claro
-    urgent: '#0c0c0c',    // Morado claro
-    other: '#0c0c0c',     // Verde claro
-  };
-  return lightColors[type];
-};
 
+  const resetForm = () => {
+    setTitle('');
+    setDescription('');
+    setSelectedDateTime(new Date());
+    setAppointmentType('personal');
+  };
+
+  const handleSaveAppointment = async () => {
+    if (!title.trim()) {
+      Alert.alert('Error', 'Por favor ingresa un nombre para la cita');
+      return;
+    }
+    const newAppointment: Appointment = {
+      id: Date.now().toString(),
+      title: title.trim(),
+      description: description.trim(),
+      date: selectedDateTime,
+      type: appointmentType,
+      reminder: false,
+      completed: false,
+    };
+    const updatedApps = [...appointments, newAppointment];
+    await saveAppointments(updatedApps);
+    
+    // ✅ CONEXIÓN CON EL AGENTE
+    await agentService.recordAppAction(
+      'Nueva cita creada', 
+      'DailyScreen',
+      { title: newAppointment.title, date: newAppointment.date.toISOString() }
+    );
+    
+    resetForm();
+    setShowModal(false);
+    navigation.navigate('Agenda', { appointments: updatedApps });
+    Alert.alert('Éxito', 'Cita creada correctamente');
+  };
+
+  const getTypeColor = (type: AppointmentType): string => {
+    const colors = {
+      personal: '#f8fc0bff',
+      work: '#0af5e5fc',
+      medical: '#deddfae2',
+      urgent: '#f60707ff',
+      other: '#42fb0ea8',
+    };
+    return colors[type];
+  };
+  const getTypeLightColor = (type: AppointmentType): string => {
+    const lightColors = {
+      personal: '#0c0c0c',
+      work: '#0c0c0c',
+      medical: '#0c0c0c',
+      urgent: '#0c0c0c',
+      other: '#0c0c0c',
+    };
+    return lightColors[type];
+  };
   const getTypeIcon = (type: AppointmentType): string => {
     const icons = {
       personal: 'person',
@@ -132,22 +176,18 @@ const getTypeLightColor = (type: AppointmentType): string => {
     return icons[type];
   };
 
-  const markedDates = useMemo((): MarkedDates => {
-    const marks: MarkedDates = {};
-
+  const markedDates = useMemo(() => {
+    const marks: any = {};
     appointments.forEach(app => {
       const dateStr = app.date.toISOString().split('T')[0];
-      
       if (!marks[dateStr]) {
         marks[dateStr] = {
           dots: [{ key: app.id, color: getTypeColor(app.type) }],
         };
       } else {
-        // Si ya hay puntos para esta fecha, agregamos uno nuevo
-        marks[dateStr].dots?.push({ key: app.id, color: getTypeColor(app.type) });
+        marks[dateStr].dots.push({ key: app.id, color: getTypeColor(app.type) });
       }
     });
-
     if (selectedDate) {
       marks[selectedDate] = {
         ...marks[selectedDate],
@@ -155,75 +195,27 @@ const getTypeLightColor = (type: AppointmentType): string => {
         selectedColor: '#e30e0eff',
       };
     }
-
     return marks;
   }, [appointments, selectedDate]);
-
-  const resetForm = () => {
-    setTitle('');
-    setDescription('');
-    const now = new Date();
-    setSelectedDateTime(now);
-    setAppointmentType('personal');
-    setShowModal(false);
-  };
-
-  const handleSaveAppointment = () => {
-    if (!title.trim()) {
-      Alert.alert('Error', 'Por favor ingresa un nombre para la cita');
-      return;
-    }
-
-    const newAppointment: Appointment = {
-      id: Date.now().toString(),
-      title: title.trim(),
-      description: description.trim(),
-      date: selectedDateTime,
-      type: appointmentType,
-      reminder: false,
-      completed: false,
-    };
-
-    const updatedApps = [...appointments, newAppointment];
-    setAppointments(updatedApps);
-    saveAppointments(updatedApps);
-    setShowModal(false);
-    resetForm();
-
-    // Navegar a AgendaScreen después de crear la cita
-    navigation.navigate('Agenda', { appointments: updatedApps });
-    
-    // Opcional: Mostrar alerta de éxito
-    Alert.alert(
-      'Éxito', 
-      'Cita creada correctamente', 
-      [{ text: 'OK' }]
-    );
-  };
 
   const openPicker = (mode: 'date' | 'time') => {
     setPickerMode(mode);
     setShowPicker(true);
   };
-
-  const onChangePicker = (event: any, selectedDate?: Date) => {
+  const onChangePicker = (event: any, selected?: Date) => {
     if (event.type === 'dismissed') {
       setShowPicker(false);
       return;
     }
-    
-    if (selectedDate) {
+    if (selected) {
       if (pickerMode === 'date') {
-        // Cuando se selecciona una fecha, actualizamos la fecha pero mantenemos la hora actual
-        const newDate = new Date(selectedDate);
-        newDate.setHours(selectedDateTime.getHours(), selectedDateTime.getMinutes());
+        const newDate = new Date(selectedDateTime);
+        newDate.setFullYear(selected.getFullYear(), selected.getMonth(), selected.getDate());
         setSelectedDateTime(newDate);
-        // Abrimos inmediatamente el selector de hora
         openPicker('time');
       } else {
-        // Cuando se selecciona una hora, actualizamos solo la hora
         const newDate = new Date(selectedDateTime);
-        newDate.setHours(selectedDate.getHours(), selectedDate.getMinutes());
+        newDate.setHours(selected.getHours(), selected.getMinutes());
         setSelectedDateTime(newDate);
         setShowPicker(false);
       }
@@ -239,67 +231,59 @@ const getTypeLightColor = (type: AppointmentType): string => {
       <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
       <SafeAreaView style={styles.safeArea}>
         <LinearGradient
-          colors={['#090FFA', '#0eb9e3', '#58fd03']}
+          colors={['#020479ff', '#0eb9e3', '#58fd03']}
+          start={{ x: 0, y: 0.2 }}
+          end={{ x: 1, y: 1 }}
           style={styles.container}
         >
-          {/* Header */}
-         <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.navigate({ name: 'Todo' } as any)}
-        >
-          <AntDesign name="doubleleft" size={44} color="white" />
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.navigate({ name: 'Todo' } as any)}
+          >
+            <AntDesign name="doubleleft" size={44} color="white" />
+          </TouchableOpacity>
           <View style={styles.header}>
             <Text style={styles.title}>Agéndate</Text>
-            {/* Botón para ir a Agenda - Mejorado */}
-            <TouchableOpacity 
-              style={styles.agendaButton}
-              onPress={navigateToAgenda}
-            >
+            <TouchableOpacity style={styles.agendaButton} onPress={navigateToAgenda}>
               <Ionicons name="list" size={24} color="#ffffff" />
               <Text style={styles.agendaButtonText}>Ver Agenda</Text>
             </TouchableOpacity>
           </View>
-
-          {/* Búsqueda - Ahora es un botón decorativo */}
-          <ScrollView 
-              horizontal 
-              showsHorizontalScrollIndicator={false} 
-              style={styles.filterContainer}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.filterContainer}
+          >
+            <TouchableOpacity
+              style={[styles.filterButton, filterType === 'all' && styles.filterButtonActive]}
+              onPress={() => setFilterType('all')}
             >
+              <Text style={styles.filterText}>Todos</Text>
+            </TouchableOpacity>
+            {(['personal', 'work', 'medical', 'urgent', 'other'] as AppointmentType[]).map(type => (
               <TouchableOpacity
-                style={[styles.filterButton, filterType === 'all' && styles.filterButtonActive]}
-                onPress={() => setFilterType('all')}
+                key={type}
+                style={[
+                  styles.filterButton,
+                  filterType === type && styles.filterButtonActive,
+                  {
+                    backgroundColor: getTypeLightColor(type),
+                    borderColor: getTypeColor(type),
+                  },
+                ]}
+                onPress={() => setFilterType(type)}
               >
-                <Text style={styles.filterText}>Todos</Text>
+                <Ionicons
+                  name={getTypeIcon(type) as any}
+                  size={16}
+                  color={getTypeColor(type)}
+                />
+                <Text style={[styles.filterText, { color: getTypeColor(type) }]}>
+                  {type.charAt(0).toUpperCase() + type.slice(1)}
+                </Text>
               </TouchableOpacity>
-
-              {(['personal', 'work', 'medical', 'urgent', 'other'] as AppointmentType[]).map(type => (
-                <TouchableOpacity
-                  key={type}
-                  style={[
-                    styles.filterButton,
-                    filterType === type && styles.filterButtonActive,
-                    { 
-                      backgroundColor: getTypeLightColor(type),
-                      borderColor: getTypeColor(type),
-                    }
-                  ]}
-                  onPress={() => setFilterType(type)}
-                >
-                  <Ionicons
-                    name={getTypeIcon(type) as any}
-                    size={16}
-                    color={getTypeColor(type)}
-                  />
-                  <Text style={[styles.filterText, { color: getTypeColor(type) }]}>
-                    {type.charAt(0).toUpperCase() + type.slice(1)}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-
-          {/* Calendario */}
+            ))}
+          </ScrollView>
           <View style={styles.calendarContainer}>
             <Calendar
               current={selectedDate}
@@ -330,16 +314,9 @@ const getTypeLightColor = (type: AppointmentType): string => {
               }}
             />
           </View>
-
-          {/* Botón Flotante */}
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => setShowModal(true)}
-          >
+          <TouchableOpacity style={styles.addButton} onPress={() => setShowModal(true)}>
             <Ionicons name="add" size={50} color="#ffffff" />
           </TouchableOpacity>
-
-          {/* Modal para crear cita */}
           <Modal
             visible={showModal}
             animationType="slide"
@@ -355,7 +332,6 @@ const getTypeLightColor = (type: AppointmentType): string => {
                   contentContainerStyle={styles.modalContent}
                   keyboardShouldPersistTaps="handled"
                 >
-                  {/* Header del Modal */}
                   <View style={styles.modalHeader}>
                     <Text style={styles.modalTitle}>Nueva Cita</Text>
                     <TouchableOpacity
@@ -365,8 +341,6 @@ const getTypeLightColor = (type: AppointmentType): string => {
                       <Ionicons name="close" size={24} color="#ffffff" />
                     </TouchableOpacity>
                   </View>
-
-                  {/* Contenido Modal */}
                   <View style={styles.inputGroup}>
                     <Text style={styles.inputLabel}>1. Nombre Cita</Text>
                     <TextInput
@@ -393,36 +367,35 @@ const getTypeLightColor = (type: AppointmentType): string => {
                   <View style={styles.inputGroup}>
                     <Text style={styles.inputLabel}>2. Elige Tipo de Cita</Text>
                     <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        style={styles.typeSelector}
-                      >
-                        {(['personal', 'work', 'medical', 'urgent', 'other'] as AppointmentType[]).map(type => (
-                          <TouchableOpacity
-                            key={type}
-                            style={[
-                              styles.typeOption,
-                              appointmentType === type && styles.typeOptionSelected,
-                              { 
-                                backgroundColor: getTypeLightColor(type),
-                                borderColor: getTypeColor(type),
-                              }
-                            ]}
-                            onPress={() => setAppointmentType(type)}
-                          >
-                            <Ionicons
-                              name={getTypeIcon(type) as any}
-                              size={16}
-                              color={getTypeColor(type)}
-                            />
-                            <Text style={[styles.typeOptionText, { color: getTypeColor(type) }]}>
-                              {type.charAt(0).toUpperCase() + type.slice(1)}
-                            </Text>
-                          </TouchableOpacity>
-                        ))}
-                      </ScrollView>
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      style={styles.typeSelector}
+                    >
+                      {(['personal', 'work', 'medical', 'urgent', 'other'] as AppointmentType[]).map(type => (
+                        <TouchableOpacity
+                          key={type}
+                          style={[
+                            styles.typeOption,
+                            appointmentType === type && styles.typeOptionSelected,
+                            {
+                              backgroundColor: getTypeLightColor(type),
+                              borderColor: getTypeColor(type),
+                            },
+                          ]}
+                          onPress={() => setAppointmentType(type)}
+                        >
+                          <Ionicons
+                            name={getTypeIcon(type) as any}
+                            size={16}
+                            color={getTypeColor(type)}
+                          />
+                          <Text style={[styles.typeOptionText, { color: getTypeColor(type) }]}>
+                            {type.charAt(0).toUpperCase() + type.slice(1)}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
                   </View>
-
                   <View style={styles.inputGroup}>
                     <Text style={styles.inputLabel}>3. Elige Fecha y Hora</Text>
                     <TouchableOpacity
@@ -435,8 +408,6 @@ const getTypeLightColor = (type: AppointmentType): string => {
                       </Text>
                     </TouchableOpacity>
                   </View>
-
-                  {/* Footer del Modal - Solo botón de crear */}
                   <View style={styles.modalFooter}>
                     <TouchableOpacity
                       style={[styles.saveButton, { width: '100%' }]}
@@ -448,8 +419,6 @@ const getTypeLightColor = (type: AppointmentType): string => {
                 </ScrollView>
               </KeyboardAvoidingView>
             </View>
-
-            {/* DateTimePicker */}
             {showPicker && (
               <DateTimePicker
                 value={selectedDateTime}

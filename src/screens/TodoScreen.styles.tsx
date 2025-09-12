@@ -67,8 +67,8 @@ const styles = StyleSheet.create<Styles>({
   },
   addButton3: {
       position: 'absolute',
-    top: 5,
-    right: 190,
+    top: 1,
+    right: 200,
     bottom: 30,
     width: 95,
     height: 50,
@@ -84,7 +84,7 @@ const styles = StyleSheet.create<Styles>({
   addButton4: {
       position: 'absolute',
     top: 10,
-    right: -1,
+    right: 5,
     bottom: 30,
     width: 90,
     height: 40,

@@ -1,8 +1,6 @@
-// screens/PreventiveScreen.styles.ts
-
 import { StyleSheet, ViewStyle, TextStyle, ImageStyle } from 'react-native';
 
-// Interfaz para asegurar el tipado fuerte de nuestros estilos
+// Interfaz para asegurar tipado fuerte de estilos
 interface Styles {
   container: ViewStyle;
   content: ViewStyle;
@@ -25,6 +23,19 @@ interface Styles {
   removeImageButton: ViewStyle;
   listFooter: ViewStyle;
   title: TextStyle;
+
+  // Nuevos estilos para tareas preventivas
+  sectionTitle: TextStyle;
+  taskList: ViewStyle;
+  taskCard: ViewStyle;
+  taskDescription: TextStyle;
+  taskDue: TextStyle;
+  taskStatus: TextStyle;
+  completeBtn: ViewStyle;
+  completeText: TextStyle;
+
+  footerContainer?: ViewStyle;
+  footerContent?: ViewStyle;
 }
 
 const styles = StyleSheet.create<Styles>({
@@ -144,7 +155,8 @@ const styles = StyleSheet.create<Styles>({
     marginTop: 8,
     right: -5,
   },
-    footerContainer: {
+
+  footerContainer: {
     position: 'absolute',
     bottom: 0,
     left: 0,
@@ -159,6 +171,53 @@ const styles = StyleSheet.create<Styles>({
     justifyContent: 'space-around',
     width: '100%',
     paddingHorizontal: 20,
+  },
+
+  // --- Estilos para tareas preventivas ---
+
+  sectionTitle: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginLeft: 12,
+    marginBottom: 10,
+  },
+  taskList: {
+    paddingHorizontal: 12,
+  },
+  taskCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    padding: 14,
+    borderRadius: 14,
+    marginRight: 14,
+    minWidth: 210,
+    maxWidth: 250,
+  },
+  taskDescription: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  taskDue: {
+    color: '#fff',
+    marginTop: 4,
+    fontSize: 13,
+  },
+  taskStatus: {
+    marginTop: 6,
+    color: '#ccc',
+    fontSize: 12,
+  },
+  completeBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  completeText: {
+    marginLeft: 6,
+    color: '#39d353',
+    fontWeight: '600',
+    fontSize: 13,
   },
 });
 
