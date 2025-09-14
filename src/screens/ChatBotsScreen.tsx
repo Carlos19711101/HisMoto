@@ -624,7 +624,7 @@ const ChatBotsScreen = () => {
   useEffect(() => {
     const welcomeMessage: MessageType = {
       id: '1',
-      text: "¡Hola! 👋 Soy tu asistente inteligente CONECTADO.\n\nEstoy vinculado con TODAS tus pantallas y puedo analizar:\n• 📅 Daily & Agenda - Estado de tus citas\n• 🔧 General & Preventive - Mantenimiento\n• 🆘 Emergency - Contactos de emergencia\n• 👤 Profile - Documentos y perfil\n• 🗺️ Route - Rutas guardadas\n\nPregúntame sobre cualquier área y te daré un análisis inteligente.",
+      text: "¡Hola! 👋 Soy tu asistente inteligente.\n\nPregúntame sobre cualquier área y te daré un análisis inteligente.\n\nDime como puedo ayudarte.",
       sender: 'bot',
       timestamp: new Date()
     };
@@ -633,7 +633,7 @@ const ChatBotsScreen = () => {
     
     // Dar la bienvenida por voz
     setTimeout(() => {
-      agentRef.current.speak("¡Hola! Soy tu asistente inteligente. Estoy conectado con todas las pantallas de tu aplicación y listo para analizar tu información y ayudarte.");
+      agentRef.current.speak("¡Hola! Soy tu asistente inteligente. Dime como puedo ayudarte.");
     }, 1000);
 
     // Simular datos
@@ -835,10 +835,10 @@ const ChatBotsScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <LinearGradient
-        colors={['#6E45E2', '#090FFA', '#88D3CE']}
-        style={styles.gradient}
-        start={{ x: 0, y: 0 }}
+        colors={['#020479ff', '#0eb9e3', '#58fd03']}
+        start={{ x: 0, y: 0.2 }}
         end={{ x: 1, y: 1 }}
+        style={styles.container}
       >
         {/* Header */}
         <View style={styles.header}>
@@ -850,7 +850,7 @@ const ChatBotsScreen = () => {
           </TouchableOpacity>
           <View style={styles.headerContent}>
             <Text style={styles.headerTitle}>Asistente Inteligente</Text>
-            <Text style={styles.headerSubtitle}>Análisis contextual avanzado</Text>
+            {/* <Text style={styles.headerSubtitle}>Análisis contextual avanzado</Text> */}
           </View>
           <TouchableOpacity 
             style={styles.menuButton}
@@ -886,7 +886,7 @@ const ChatBotsScreen = () => {
 
         {/* Botones de acción */}
         <View style={styles.actionButtonsContainer}>
-          <TouchableOpacity 
+          {/* <TouchableOpacity 
             style={[styles.actionButton, isListening && styles.listeningButton]}
             onPress={handleVoiceCommand}
             disabled={isProcessing}
@@ -899,24 +899,37 @@ const ChatBotsScreen = () => {
             <Text style={styles.actionButtonText}>
               {isListening ? "Detener" : "Voz"}
             </Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
           <TouchableOpacity 
-            style={styles.actionButton}
-            onPress={navigateToIAScreen}
+            style={styles.helpButton}
+            onPress={() => navigation.navigate({ name: 'IA' } as any)}
             disabled={isProcessing}
           >
+          <LinearGradient
+              colors={['rgba(128, 0, 255, 1)', '#0eb9e3', '#8003fdff']}
+              start={{ x: 0, y: 0.2 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.buttonGradient}
+          >
             <Ionicons name="hardware-chip" size={22} color="white" />
-            <Text style={styles.actionButtonText}>IA Avanzada</Text>
+            <Text style={styles.actionButtonText}>  IA Avanzada</Text>
+          </LinearGradient>
           </TouchableOpacity>
-
           <TouchableOpacity 
-            style={styles.actionButton}
+            style={styles.helpButton}
             onPress={toggleFrequentQuestions}
             disabled={isProcessing}
           >
+          <LinearGradient
+              colors={['#0509f7ff', '#0eb9e3', '#0509f7ff']}
+              start={{ x: 0, y: 0.2 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.buttonGradient}
+          >
             <Ionicons name="help-circle" size={22} color="white" />
-            <Text style={styles.actionButtonText}>Preguntas</Text>
+            <Text style={styles.actionButtonText}>  Preguntas Frecuentes</Text>
+          </LinearGradient>
           </TouchableOpacity>
         </View>
 
@@ -965,7 +978,7 @@ const ChatBotsScreen = () => {
               style={styles.textInput}
               value={inputText}
               onChangeText={setInputText}
-              placeholder="Pregunta sobre cualquier pantalla..."
+              placeholder="Pregunta..."
               placeholderTextColor="#999"
               multiline
               maxLength={500}

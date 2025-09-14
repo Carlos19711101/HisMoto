@@ -116,16 +116,16 @@ const styles = StyleSheet.create<Styles>({
     alignItems: 'center',
   },
   card: {
-    height: 400,
-    width: 400,
-    borderRadius: 20,
+    height: 420,
+    width: 420,
+    borderRadius: 30,
     justifyContent: 'flex-end', // Cambiado para alinear el texto al fondo
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: '#010101ff',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 6,
-    elevation: 25,
+    elevation: 15,
     position: 'relative',
   },
   cardImage: {

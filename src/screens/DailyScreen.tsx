@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   TextInput,
@@ -10,7 +10,6 @@ import {
   StatusBar,
   Modal,
   ScrollView,
-  Animated,
   KeyboardAvoidingView,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -58,7 +57,6 @@ const DailyScreen = () => {
   const [showPicker, setShowPicker] = useState(false);
   const [pickerMode, setPickerMode] = useState<'date' | 'time'>('date');
 
-  // Carga inicial con agente
   useEffect(() => {
     const loadAppointments = async () => {
       try {
@@ -71,16 +69,15 @@ const DailyScreen = () => {
           }));
           setAppointments(loadedAppointments);
         }
-        
-        // ✅ CONEXIÓN CON EL AGENTE
+
         await agentService.saveScreenState('Daily', {
           appointments: loadedAppointments,
           total: loadedAppointments.length,
           nextAppointment: loadedAppointments[0] || null,
         });
-        
+
         await agentService.recordAppAction(
-          'Citas diarias cargadas', 
+          'Citas diarias cargadas',
           'DailyScreen',
           { count: loadedAppointments.length }
         );
@@ -91,13 +88,11 @@ const DailyScreen = () => {
     loadAppointments();
   }, []);
 
-  // Guardar citas con integración en agente
   const saveAppointments = async (apps: Appointment[]) => {
     try {
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(apps));
       setAppointments(apps);
-      
-      // ✅ CONEXIÓN CON EL AGENTE
+
       await agentService.saveScreenState('Daily', {
         appointments: apps,
         total: apps.length,
@@ -131,14 +126,13 @@ const DailyScreen = () => {
     };
     const updatedApps = [...appointments, newAppointment];
     await saveAppointments(updatedApps);
-    
-    // ✅ CONEXIÓN CON EL AGENTE
+
     await agentService.recordAppAction(
-      'Nueva cita creada', 
+      'Nueva cita creada',
       'DailyScreen',
       { title: newAppointment.title, date: newAppointment.date.toISOString() }
     );
-    
+
     resetForm();
     setShowModal(false);
     navigation.navigate('Agenda', { appointments: updatedApps });
@@ -155,16 +149,9 @@ const DailyScreen = () => {
     };
     return colors[type];
   };
-  const getTypeLightColor = (type: AppointmentType): string => {
-    const lightColors = {
-      personal: '#0c0c0c',
-      work: '#0c0c0c',
-      medical: '#0c0c0c',
-      urgent: '#0c0c0c',
-      other: '#0c0c0c',
-    };
-    return lightColors[type];
-  };
+
+  const getTypeLightColor = (): string => '#0c0c0c';
+
   const getTypeIcon = (type: AppointmentType): string => {
     const icons = {
       personal: 'person',
@@ -202,6 +189,7 @@ const DailyScreen = () => {
     setPickerMode(mode);
     setShowPicker(true);
   };
+
   const onChangePicker = (event: any, selected?: Date) => {
     if (event.type === 'dismissed') {
       setShowPicker(false);
@@ -266,18 +254,11 @@ const DailyScreen = () => {
                 style={[
                   styles.filterButton,
                   filterType === type && styles.filterButtonActive,
-                  {
-                    backgroundColor: getTypeLightColor(type),
-                    borderColor: getTypeColor(type),
-                  },
+                  { backgroundColor: getTypeLightColor(), borderColor: getTypeColor(type) },
                 ]}
                 onPress={() => setFilterType(type)}
               >
-                <Ionicons
-                  name={getTypeIcon(type) as any}
-                  size={16}
-                  color={getTypeColor(type)}
-                />
+                <Ionicons name={getTypeIcon(type) as any} size={16} color={getTypeColor(type)} />
                 <Text style={[styles.filterText, { color: getTypeColor(type) }]}>
                   {type.charAt(0).toUpperCase() + type.slice(1)}
                 </Text>
@@ -334,10 +315,7 @@ const DailyScreen = () => {
                 >
                   <View style={styles.modalHeader}>
                     <Text style={styles.modalTitle}>Nueva Cita</Text>
-                    <TouchableOpacity
-                      onPress={() => setShowModal(false)}
-                      style={styles.closeButton}
-                    >
+                    <TouchableOpacity onPress={() => setShowModal(false)} style={styles.closeButton}>
                       <Ionicons name="close" size={24} color="#ffffff" />
                     </TouchableOpacity>
                   </View>
@@ -366,29 +344,18 @@ const DailyScreen = () => {
                   </View>
                   <View style={styles.inputGroup}>
                     <Text style={styles.inputLabel}>2. Elige Tipo de Cita</Text>
-                    <ScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator={false}
-                      style={styles.typeSelector}
-                    >
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.typeSelector}>
                       {(['personal', 'work', 'medical', 'urgent', 'other'] as AppointmentType[]).map(type => (
                         <TouchableOpacity
                           key={type}
                           style={[
                             styles.typeOption,
                             appointmentType === type && styles.typeOptionSelected,
-                            {
-                              backgroundColor: getTypeLightColor(type),
-                              borderColor: getTypeColor(type),
-                            },
+                            { backgroundColor: getTypeLightColor(), borderColor: getTypeColor(type) },
                           ]}
                           onPress={() => setAppointmentType(type)}
                         >
-                          <Ionicons
-                            name={getTypeIcon(type) as any}
-                            size={16}
-                            color={getTypeColor(type)}
-                          />
+                          <Ionicons name={getTypeIcon(type) as any} size={16} color={getTypeColor(type)} />
                           <Text style={[styles.typeOptionText, { color: getTypeColor(type) }]}>
                             {type.charAt(0).toUpperCase() + type.slice(1)}
                           </Text>
@@ -398,10 +365,7 @@ const DailyScreen = () => {
                   </View>
                   <View style={styles.inputGroup}>
                     <Text style={styles.inputLabel}>3. Elige Fecha y Hora</Text>
-                    <TouchableOpacity
-                      style={styles.timeButton}
-                      onPress={() => openPicker('date')}
-                    >
+                    <TouchableOpacity style={styles.timeButton} onPress={() => openPicker('date')}>
                       <Ionicons name="calendar" size={20} color="#0eb9e3" />
                       <Text style={styles.timeButtonText}>
                         {selectedDateTime.toLocaleString()}

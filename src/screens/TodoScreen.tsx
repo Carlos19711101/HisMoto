@@ -209,7 +209,7 @@ const TodoScreen: React.FC<TodoScreenProps> = ({ navigation }) => {
         </TouchableOpacity>
         
         <View style={styles.content}> 
-          <Text style={styles.title}>Documenta la Historia</Text>
+          <Text style={styles.title}>¿Qué deseas hacer?</Text>
         </View>
         
         {/* Botón con animación de escala para el chatbot (help2) */}

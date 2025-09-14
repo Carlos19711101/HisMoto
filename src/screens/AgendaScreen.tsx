@@ -22,14 +22,14 @@ import styles from './AgendaScreen.styles';
 
 import { agentService } from '../services/agentService';
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
+// Notifications.setNotificationHandler({
+//   handleNotification: async () => ({
+//     shouldShowBanner: true,
+//     shouldShowList: true,
+//     shouldPlaySound: true,
+//     shouldSetBadge: false,
+//   }),
+// });
 
 type AppointmentType = 'personal' | 'work' | 'medical' | 'urgent' | 'other';
 
@@ -311,15 +311,45 @@ const AgendaScreen = () => {
     await agentService.recordAppAction('Cita completada', 'AgendaScreen', { appointmentId: id });
   };
 
+  // const setReminder = async (app: Appointment, minutes: number) => {
+  //   try {
+  //     const reminderTime = new Date(app.date.getTime() - minutes * 60000);
+  //     const notificationId = await schedulePushNotification({
+  //       ...app,
+  //       reminderTime,
+  //       reminder: true,
+  //       reminderMinutes: minutes,
+  //     });
+  //     if (notificationId) {
+  //       const updatedApps = appointments.map(a =>
+  //         a.id === app.id
+  //           ? { ...a, reminder: true, reminderTime, reminderMinutes: minutes, notificationId }
+  //           : a
+  //       );
+  //       saveAppointments(updatedApps);
+  //       setShowReminderModal(false);
+  //       Alert.alert('Recordatorio configurado', `Te recordaremos ${minutes} minutos antes de tu cita.`, [{ text: 'OK' }]);
+  //     } else {
+  //       Alert.alert('Error', 'No se pudo programar el recordatorio. La fecha puede ser en el pasado.');
+  //     }
+  //   } catch (error) {
+  //     console.error('Error al configurar recordatorio:', error);
+  //     Alert.alert('Error', 'No se pudo configurar el recordatorio');
+  //   }
+  // };
+  // --- Solo muestro la parte modificada para ahorrar espacio ---
   const setReminder = async (app: Appointment, minutes: number) => {
     try {
+      // ✅ AHORA USAMOS LA FECHA DE LA CITA COMO REFERENCIA
       const reminderTime = new Date(app.date.getTime() - minutes * 60000);
+
       const notificationId = await schedulePushNotification({
         ...app,
         reminderTime,
         reminder: true,
         reminderMinutes: minutes,
       });
+
       if (notificationId) {
         const updatedApps = appointments.map(a =>
           a.id === app.id
@@ -337,6 +367,7 @@ const AgendaScreen = () => {
       Alert.alert('Error', 'No se pudo configurar el recordatorio');
     }
   };
+
 
   const filteredAppointments = appointments
     .filter(app => {
@@ -430,11 +461,11 @@ const AgendaScreen = () => {
       >
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.navigate('Daily')} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#ffffff" />
+            <Ionicons name="arrow-back" size={24} color="#ffffffff" />
           </TouchableOpacity>
           <Text style={styles.title}>Mis Citas</Text>
           <TouchableOpacity onPress={() => navigation.navigate('Daily')} style={styles.newAppointmentButton}>
-            <Ionicons name="add" size={24} color="#ffffff" />
+            <Ionicons name="add" size={28} color="#ffffff" />
             <Text style={styles.newAppointmentButtonText}>Nueva</Text>
           </TouchableOpacity>
         </View>

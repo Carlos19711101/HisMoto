@@ -20,10 +20,19 @@ const styles = StyleSheet.create({
     borderBottomColor: 'rgba(255,255,255,0.1)',
   },
   backButton: {
+    marginTop: 12, 
     padding: 8,
+  },
+  buttonGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 18,
+    paddingHorizontal: 24,
   },
   headerContent: {
     flex: 1,
+    marginTop: 12,
     alignItems: 'center',
   },
   headerTitle: {
@@ -36,6 +45,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   menuButton: {
+    marginTop: 12,
     padding: 8,
   },
   chatContainer: {
@@ -116,13 +126,25 @@ const styles = StyleSheet.create({
     color: 'rgba(0,0,0,0.5)',
     textAlign: 'left',
   },
+  helpButton: {
+    width: '90%',
+    borderRadius: 25,
+    overflow: 'hidden',
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
 
   // NUEVOS ESTILOS PARA BOTONES DE ACCIÓN
   actionButtonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    right: 10,
+    left: 10,
+    top: 5,
+    paddingHorizontal: 19,
+    paddingVertical: 6,
     backgroundColor: 'rgba(255,255,255,0.05)',
     borderTopWidth: 1,
     borderTopColor: 'rgba(255,255,255,0.1)',
@@ -237,11 +259,13 @@ const styles = StyleSheet.create({
   },
   inputWrapper: {
     flexDirection: 'row',
+    top: -25,
     alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.9)',
     borderRadius: 25,
     paddingHorizontal: 16,
     minHeight: 50,
+    
   },
   textInput: {
     flex: 1,
