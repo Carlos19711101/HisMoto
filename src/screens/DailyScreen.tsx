@@ -228,7 +228,7 @@ const DailyScreen = () => {
             style={styles.backButton}
             onPress={() => navigation.navigate({ name: 'Todo' } as any)}
           >
-            <AntDesign name="doubleleft" size={44} color="white" />
+          <AntDesign name="doubleleft" size={44} color="white" />
           </TouchableOpacity>
           <View style={styles.header}>
             <Text style={styles.title}>Agéndate</Text>
