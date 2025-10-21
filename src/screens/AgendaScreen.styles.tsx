@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   reminderButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,215,0,0.2)',
+    backgroundColor: 'rgba(0, 255, 225, 0.74)',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 15,
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
   completeButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(78,205,196,0.2)',
+    backgroundColor: 'rgba(138, 252, 7, 1)',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 15,

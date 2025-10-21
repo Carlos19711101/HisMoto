@@ -115,9 +115,10 @@ const SearchAddress = ({ navigation }: any) => {
       
       <SafeAreaView style={styles.safeArea}>
         <LinearGradient 
-          colors={['#020479ff', '#0eb9e3', '#58fd03']}
-          start={{ x: 0, y: 0.2 }}
-          end={{ x: 1, y: 1 }}
+          colors={['#080809cf', '#0529f5d8', '#37fa06ff']}
+            locations={[0, 0.6, 1]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
           style={[styles.container, { 
             paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 
           }]}
@@ -128,7 +129,7 @@ const SearchAddress = ({ navigation }: any) => {
               style={styles.backButton}
               onPress={() => navigation.goBack()}
             >
-              <AntDesign name="arrowleft" size={24} color="white" />
+              <AntDesign name="arrow-left" size={24} color="white" />
             </TouchableOpacity>
             <Text style={styles.title}>Buscar Dirección</Text>
             <View style={styles.headerPlaceholder} />

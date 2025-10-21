@@ -36,10 +36,15 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     fontWeight: '600',
   },
+  agendaButtonText1: {
+    color: '#ffffff',
+    marginLeft: 5,
+    fontWeight: '600',
+  },
     backButton: {
     position: 'absolute',
-    top: 580,
-    left: 40,
+    top: 555,
+    left: 50,
     zIndex: 10,
   },
   searchContainer: {
@@ -81,7 +86,7 @@ const styles = StyleSheet.create({
   borderColor: 'transparent',
   transform: [{ translateY: 0 }], // Estado normal
 },
-filterButtonActive: {
+  filterButtonActive: {
   borderWidth: 2,
   borderColor: '#ffffffff',
   transform: [{ translateY: 8 }], // ✅ "Baja" el botón 3px
@@ -93,7 +98,7 @@ filterButtonActive: {
     fontWeight: '600',
   },
   calendarContainer: {
-    backgroundColor: 'rgba(15, 14, 14, 0.14)',
+    backgroundColor: 'rgba(15, 14, 14, 0.22)',
     marginTop: -10,
     borderRadius: 15,
     marginHorizontal: 20,
@@ -101,17 +106,20 @@ filterButtonActive: {
     overflow: 'hidden',
   },
   addButton: {
+    flexDirection: 'row-reverse',
+    backgroundColor: 'rgba(77, 251, 2, 1)',
+    paddingHorizontal: 15,
+    paddingVertical: 8,
     position: 'absolute',
-    top: 580,
-    right: 50,
+    top: 555,
+    right: 36,
     bottom: 30,
-    width: 60,
-    height: 60,
+    width: 150,
+    height: 45,
     borderRadius: 30,
-    backgroundColor: '#4bec3cf6',
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 3,
+    elevation: 18,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
@@ -122,14 +130,32 @@ filterButtonActive: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
-    paddingHorizontal: 20,
+    alignItems: 'center',
+    paddingHorizontal: 'auto',
   },
   modalContainer: {
+    width: 'auto',
+    height: 'auto',
     backgroundColor: '#210af4fb',
     borderRadius: 12,
-    maxHeight: '95%',
-    paddingVertical: 20,
+    maxHeight: '90%',
+    paddingVertical: 'auto',
+    overflow: 'hidden',
   },
+  // modalOverlay: {
+  //   flex: 1,
+  //   backgroundColor: 'rgba(0, 0, 0, 0.7)',
+  //   justifyContent: 'center',
+  //   alignItems: 'center',
+  // },
+  // modalContainer: {
+  //   width: '90%',
+  //   maxHeight: '80%',    // ← Altura máxima controlada
+  //   backgroundColor: '#210af4fb',
+  //   borderRadius: 12,
+  //   overflow: 'hidden',
+  //   // ❌ SIN flex: 1 aquí
+  // },
   modalContent: {
     paddingHorizontal: 20,
     paddingBottom: 30,
@@ -228,13 +254,13 @@ filterButtonActive: {
     fontWeight: '600',
   },
   // Agregar estos estilos al archivo existente
-statsContainer: {
+  statsContainer: {
   flexDirection: 'row',
   justifyContent: 'center',
   marginBottom: 10,
   gap: 15,
 },
-statsText: {
+  statsText: {
   color: 'white',
   fontSize: 12,
   fontWeight: '600',
@@ -243,13 +269,13 @@ statsText: {
   paddingVertical: 4,
   borderRadius: 10,
 },
-quickActionsContainer: {
+  quickActionsContainer: {
   flexDirection: 'row',
   justifyContent: 'center',
   marginBottom: 15,
   gap: 10,
 },
-quickActionButton: {
+  quickActionButton: {
   flexDirection: 'row',
   alignItems: 'center',
   backgroundColor: 'rgba(255,255,255,0.1)',
@@ -259,12 +285,12 @@ quickActionButton: {
   borderWidth: 1,
   borderColor: 'rgba(255,255,255,0.3)',
 },
-quickActionText: {
+  quickActionText: {
   color: 'white',
   fontSize: 12,
   marginLeft: 5,
 },
-todayContainer: {
+  todayContainer: {
   backgroundColor: 'rgba(255,255,255,0.1)',
   padding: 15,
   borderRadius: 15,
@@ -273,13 +299,13 @@ todayContainer: {
   borderWidth: 1,
   borderColor: 'rgba(255,255,255,0.2)',
 },
-todayTitle: {
+  todayTitle: {
   color: 'white',
   fontSize: 16,
   fontWeight: 'bold',
   marginBottom: 10,
 },
-todayAppointment: {
+  todayAppointment: {
   backgroundColor: 'rgba(255,255,255,0.9)',
   padding: 12,
   borderRadius: 10,
@@ -287,17 +313,17 @@ todayAppointment: {
   minWidth: 150,
   borderLeftWidth: 4,
 },
-todayAppointmentText: {
+  todayAppointmentText: {
   fontSize: 14,
   fontWeight: 'bold',
   color: '#333',
 },
-todayAppointmentTime: {
+  todayAppointmentTime: {
   fontSize: 12,
   color: '#666',
   marginTop: 4,
 },
-completeButton: {
+  completeButton: {
   position: 'absolute',
   top: 5,
   right: 5,

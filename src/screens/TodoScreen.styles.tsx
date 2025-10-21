@@ -98,8 +98,8 @@ const styles = StyleSheet.create<Styles>({
     shadowRadius: 3.84,
   },
   container: {
-    height: 400,
-    marginVertical: 80,
+    height: '70%',
+    marginVertical: 'auto',
     overflow: 'hidden',
   },
   content: {
@@ -116,8 +116,8 @@ const styles = StyleSheet.create<Styles>({
     alignItems: 'center',
   },
   card: {
-    height: 420,
-    width: 420,
+    height: '100%',
+    width: 'auto',
     borderRadius: 30,
     justifyContent: 'flex-end', // Cambiado para alinear el texto al fondo
     alignItems: 'center',
@@ -162,7 +162,7 @@ const styles = StyleSheet.create<Styles>({
   },
   backButton: {
     position: 'absolute',
-    top: 40,
+    marginTop: 5,
     left: 20,
     zIndex: 10,
     padding: 5,

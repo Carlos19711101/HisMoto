@@ -80,8 +80,8 @@ const InfoScreen = () => {
     },
     {
       icon: 'first-aid',
-      title: 'Tarjeta # 5 \nModo Emergencia',
-      description: 'Acceda de forma inmediata a información clave ante cualquier ocurrencia en la vía. Registrar cada incidente te permite construir un historial detallado, facilitando la identificación de patrones y ayudando a prevenir posibles fallas en el futuro. Así, estarás mejor preparado para actuar y tomar decisiones informadas sobre la seguridad y el mantenimiento de tu vehículo.',
+      title: 'Tarjeta # 5 \nControl Combustible ',
+      description: 'Acceda de inmediato a información clave que le permitirá controlar de manera efectiva el consumo de combustible. Obtenga estadísticas detalladas sobre la cantidad exacta que está comprando y el gasto real por kilómetro recorrido, para optimizar su manejo y maximizar el rendimiento de su motocicleta.',
       color: '#FF5252',
       image: cardImages[4]
     },
@@ -118,8 +118,8 @@ const InfoScreen = () => {
     },
     {
       step: 5,
-      title: 'Creamos un ChatBot',
-      description: 'Desarrollamos este chatbot pensando en tu comodidad. Actualmente está en fase de mejora, por lo que puede presentar algunos errores. Sin embargo, continuamos optimizándolo para ofrecerte una experiencia cada vez más fluida y eficiente, facilitando la interacción y la rapidez en la atención a tus necesidades.'
+      title: 'Creamos un Agente Inteligente',
+      description: 'Desarrollamos este Agente pensando en tu comodidad. Actualmente está en fase de mejora, por lo que puede presentar algunos errores. Sin embargo, continuamos optimizándolo para ofrecerte una experiencia cada vez más fluida y eficiente, facilitando la interacción y la rapidez en la atención a tus necesidades.'
     }
   ];
 
@@ -139,7 +139,7 @@ const InfoScreen = () => {
             style={styles.backButton}
             onPress={() => navigation.navigate('Todo')}
           >
-            <AntDesign name="arrowleft" size={24} color="white" />
+            <AntDesign name="double-left" size={24} color="white" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Información de la App</Text>
           <View style={{ width: 24 }} />
@@ -173,7 +173,26 @@ const InfoScreen = () => {
               </LinearGradient>
             </ImageBackground>
           </View>
-
+            <View style={styles.heroSection}>
+            <ImageBackground
+              source={require('../../assets/imagenTargeta/AgenteInteligente.png')} // Imagen de fondo para el hero
+              style={styles.heroCard}
+              imageStyle={styles.heroCardImage}
+              resizeMode="cover"
+            >
+              <LinearGradient
+                colors={['rgba(249, 248, 250, 0)', 'rgba(249, 249, 250, 0)', 'rgba(242, 249, 248, 0)']}
+                style={styles.heroOverlay}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+              >
+                <Text style={styles.heroTitle}></Text>
+                <Text style={styles.heroSubtitle1}>
+                  ¡Hola! Soy tu Agente Inteligente, diseñado para asitirte en algunas preguntas y respuestas informativas y frecuentes.
+                </Text>
+              </LinearGradient>
+            </ImageBackground>
+          </View>
           {/* Features Section */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Características Principales</Text>
@@ -336,7 +355,14 @@ const styles = StyleSheet.create({
   },
   heroSubtitle: {
     color: 'rgba(255,255,255,0.9)',
-     marginTop: 100,
+    marginTop: 100,
+    fontSize: 16,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+    heroSubtitle1: {
+    color: 'rgba(255,255,255,0.9)',
+    marginTop: 100,
     fontSize: 16,
     textAlign: 'center',
     lineHeight: 22,

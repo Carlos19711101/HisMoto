@@ -50,7 +50,7 @@ const styles = StyleSheet.create<Styles>({
     paddingBottom: 20,
   },
   entryContainer: {
-    backgroundColor: 'rgba(12, 15, 250, 0.9)',
+    backgroundColor: 'rgba(30, 6, 251, 0.18)',
     borderRadius: 10,
     padding: 5,
     marginHorizontal: 8,
@@ -93,6 +93,7 @@ const styles = StyleSheet.create<Styles>({
     backgroundColor: 'white',
   },
   inputContainer: {
+    top: -15,
     flexDirection: 'row',
     alignItems: 'center',
     padding: 10,

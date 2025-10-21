@@ -210,7 +210,7 @@ const RouteScreen = ({ navigation }: any) => {
             style={[styles.backButton, { top: Platform.OS === 'android' ? (StatusBar.currentHeight || 0) + 10 : 20 }]}
             onPress={() => navigation.navigate('Todo')}
           >
-            <AntDesign name="doubleleft" size={30} color="white" style={styles.backButtonIcon} />
+            <AntDesign name="double-left" size={30} color="white" style={styles.backButtonIcon} />
           </TouchableOpacity>
           <View style={styles.content}>
             <Text style={styles.title}>Mis Rutas</Text>

@@ -26,7 +26,7 @@
         {
           "icon": "./assets/icon.png",
           "color": "#090FFA",
-          "sounds": ["./assets/notification-sound.wav"]
+          "sounds": ["./assets/notificationsound.wav"]
         }
       ]
     ],
@@ -56,13 +56,12 @@
         "android.permission.WAKE_LOCK",
         "android.permission.VIBRATE"
       ],
-      "softwareKeyboardLayoutMode": "pan",
-      "statusBar": {
-        "backgroundColor": "#00000000",
-        "translucent": true,
-        "barStyle": "light-content"
-      },
-      "useNextNotificationsApi": true
+      "softwareKeyboardLayoutMode": "pan"
+    },
+    "androidStatusBar": {
+      "backgroundColor": "#00000000",
+      "translucent": true,
+      "barStyle": "light-content"
     },
     "web": {
       "favicon": "./assets/icon.png"

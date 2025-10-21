@@ -123,16 +123,21 @@ export default StyleSheet.create({
   // Estilos para el modal
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    backgroundColor: 'rgba(7, 182, 246, 1)',
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 'auto',
   },
   modalContainer: {
-    width: '90%',
-    maxHeight: '80%',
+    width: 'auto',
+    backgroundColor: '#06c0f4fb',
+    borderRadius: 20,
+    maxHeight: '90%',
+    paddingVertical: 'auto',
+    overflow: 'hidden',
   },
   modalContent: {
-    backgroundColor: '#fff',
+    backgroundColor: '#4acff8ff',
     borderRadius: 20,
     padding: 20,
     alignItems: 'center',
@@ -147,14 +152,14 @@ export default StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#0eb9e3',
+    color: '#ffffff',
   },
   closeButton: {
     padding: 5,
   },
   modalDescription: {
     fontSize: 16,
-    color: '#333',
+    color: '#ffffff',
     textAlign: 'center',
     marginBottom: 15,
     lineHeight: 22,
@@ -173,7 +178,7 @@ export default StyleSheet.create({
   },
   noteText: {
     fontSize: 12,
-    color: '#666',
+    color: '#ffffff',
     textAlign: 'center',
     marginBottom: 20,
     fontStyle: 'italic',

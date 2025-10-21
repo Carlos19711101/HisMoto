@@ -11,14 +11,17 @@ import {
   Modal,
   ScrollView,
   KeyboardAvoidingView,
+  Keyboard,
+  Dimensions
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { AntDesign, Ionicons } from '@expo/vector-icons';
+import { Ionicons, AntDesign } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Calendar, DateData } from 'react-native-calendars';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import styles from './DailyScreen.styles';
 
 import { agentService } from '../services/agentService';
@@ -37,11 +40,34 @@ interface Appointment {
 }
 
 type RootStackParamList = {
-  Agenda: { appointments: Appointment[] };
+  Agenda: undefined;
   Daily: undefined;
+  Todo: undefined;
 };
 
 const STORAGE_KEY = '@professional_appointments';
+
+/** Hook para conocer la altura del teclado */
+function useKeyboardHeight() {
+  const [height, setHeight] = useState(0);
+
+  useEffect(() => {
+    const showEvt = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvt = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const subShow = Keyboard.addListener(showEvt, e => {
+      setHeight(e?.endCoordinates?.height ?? 0);
+    });
+    const subHide = Keyboard.addListener(hideEvt, () => setHeight(0));
+
+    return () => {
+      subShow.remove();
+      subHide.remove();
+    };
+  }, []);
+
+  return height;
+}
 
 const DailyScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -57,29 +83,34 @@ const DailyScreen = () => {
   const [showPicker, setShowPicker] = useState(false);
   const [pickerMode, setPickerMode] = useState<'date' | 'time'>('date');
 
+  const kbHeight = useKeyboardHeight();
+  const insets = useSafeAreaInsets();
+  const KEYBOARD_OFFSET = Platform.OS === 'ios' ? 60 : 0;
+  const { height: screenHeight } = Dimensions.get('window');
+
   useEffect(() => {
     const loadAppointments = async () => {
       try {
         const stored = await AsyncStorage.getItem(STORAGE_KEY);
-        let loadedAppointments: Appointment[] = [];
+        let loaded: Appointment[] = [];
         if (stored) {
-          loadedAppointments = JSON.parse(stored).map((item: any) => ({
+          loaded = JSON.parse(stored).map((item: any) => ({
             ...item,
             date: new Date(item.date),
           }));
-          setAppointments(loadedAppointments);
+          setAppointments(loaded);
         }
 
         await agentService.saveScreenState('Daily', {
-          appointments: loadedAppointments,
-          total: loadedAppointments.length,
-          nextAppointment: loadedAppointments[0] || null,
+          appointments: loaded,
+          total: loaded.length,
+          nextAppointment: loaded[0] || null,
         });
 
         await agentService.recordAppAction(
           'Citas diarias cargadas',
           'DailyScreen',
-          { count: loadedAppointments.length }
+          { count: loaded.length }
         );
       } catch (error) {
         console.error('Error loading appointments:', error);
@@ -124,8 +155,8 @@ const DailyScreen = () => {
       reminder: false,
       completed: false,
     };
-    const updatedApps = [...appointments, newAppointment];
-    await saveAppointments(updatedApps);
+    const updated = [...appointments, newAppointment];
+    await saveAppointments(updated);
 
     await agentService.recordAppAction(
       'Nueva cita creada',
@@ -135,7 +166,7 @@ const DailyScreen = () => {
 
     resetForm();
     setShowModal(false);
-    navigation.navigate('Agenda', { appointments: updatedApps });
+    navigation.navigate('Agenda');
     Alert.alert('Éxito', 'Cita creada correctamente');
   };
 
@@ -168,9 +199,7 @@ const DailyScreen = () => {
     appointments.forEach(app => {
       const dateStr = app.date.toISOString().split('T')[0];
       if (!marks[dateStr]) {
-        marks[dateStr] = {
-          dots: [{ key: app.id, color: getTypeColor(app.type) }],
-        };
+        marks[dateStr] = { dots: [{ key: app.id, color: getTypeColor(app.type) }] };
       } else {
         marks[dateStr].dots.push({ key: app.id, color: getTypeColor(app.type) });
       }
@@ -210,26 +239,26 @@ const DailyScreen = () => {
     }
   };
 
-  const navigateToAgenda = () => {
-    navigation.navigate('Agenda', { appointments });
-  };
+  const navigateToAgenda = () => navigation.navigate('Agenda');
 
   return (
     <>
       <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
       <SafeAreaView style={styles.safeArea}>
         <LinearGradient
-          colors={['#020479ff', '#0eb9e3', '#58fd03']}
-          start={{ x: 0, y: 0.2 }}
-          end={{ x: 1, y: 1 }}
+          colors={['#080809cf', '#0529f5d8', '#37fa06ff']}
+            locations={[0, 0.6, 1]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
           style={styles.container}
         >
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => navigation.navigate({ name: 'Todo' } as any)}
+            onPress={() => navigation.navigate('Todo')}
           >
-          <AntDesign name="doubleleft" size={44} color="white" />
+            <AntDesign name="double-left" size={44} color="white" />
           </TouchableOpacity>
+
           <View style={styles.header}>
             <Text style={styles.title}>Agéndate</Text>
             <TouchableOpacity style={styles.agendaButton} onPress={navigateToAgenda}>
@@ -237,11 +266,8 @@ const DailyScreen = () => {
               <Text style={styles.agendaButtonText}>Ver Agenda</Text>
             </TouchableOpacity>
           </View>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.filterContainer}
-          >
+
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterContainer}>
             <TouchableOpacity
               style={[styles.filterButton, filterType === 'all' && styles.filterButtonActive]}
               onPress={() => setFilterType('all')}
@@ -265,6 +291,7 @@ const DailyScreen = () => {
               </TouchableOpacity>
             ))}
           </ScrollView>
+
           <View style={styles.calendarContainer}>
             <Calendar
               current={selectedDate}
@@ -295,9 +322,12 @@ const DailyScreen = () => {
               }}
             />
           </View>
+
           <TouchableOpacity style={styles.addButton} onPress={() => setShowModal(true)}>
-            <Ionicons name="add" size={50} color="#ffffff" />
+            <Text style={styles.agendaButtonText1}>Crear Cita</Text>
           </TouchableOpacity>
+
+          {/* MODAL CORREGIDO - No se encoge con el teclado */}
           <Modal
             visible={showModal}
             animationType="slide"
@@ -305,84 +335,115 @@ const DailyScreen = () => {
             onRequestClose={() => setShowModal(false)}
           >
             <View style={styles.modalOverlay}>
-              <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                style={styles.modalContainer}
-              >
-                <ScrollView
-                  contentContainerStyle={styles.modalContent}
-                  keyboardShouldPersistTaps="handled"
+              {/* CONTENEDOR PRINCIPAL SIN flex:1 */}
+              <View style={[
+                styles.modalContainer, 
+                { maxHeight: screenHeight * 0.8 } // Altura máxima controlada
+              ]}>
+                
+                {/* KeyboardAvoidingView SOLO alrededor del contenido desplazable */}
+                <KeyboardAvoidingView
+                  behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                  style={{ flex: 1 }}
+                  keyboardVerticalOffset={KEYBOARD_OFFSET}
                 >
-                  <View style={styles.modalHeader}>
-                    <Text style={styles.modalTitle}>Nueva Cita</Text>
-                    <TouchableOpacity onPress={() => setShowModal(false)} style={styles.closeButton}>
-                      <Ionicons name="close" size={24} color="#ffffff" />
-                    </TouchableOpacity>
-                  </View>
-                  <View style={styles.inputGroup}>
-                    <Text style={styles.inputLabel}>1. Nombre Cita</Text>
-                    <TextInput
-                      style={styles.input}
-                      placeholder="Nombre de la cita"
-                      placeholderTextColor="#aaaaaa"
-                      value={title}
-                      onChangeText={setTitle}
-                    />
-                  </View>
-                  <View style={styles.inputGroup}>
-                    <Text style={styles.inputLabel}>Descripción Adiccional</Text>
-                    <TextInput
-                      style={[styles.input, styles.textArea]}
-                      placeholder="Descripción (opcional)"
-                      placeholderTextColor="#aaaaaa"
-                      value={description}
-                      onChangeText={setDescription}
-                      multiline
-                      numberOfLines={4}
-                      textAlignVertical="top"
-                    />
-                  </View>
-                  <View style={styles.inputGroup}>
-                    <Text style={styles.inputLabel}>2. Elige Tipo de Cita</Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.typeSelector}>
-                      {(['personal', 'work', 'medical', 'urgent', 'other'] as AppointmentType[]).map(type => (
-                        <TouchableOpacity
-                          key={type}
-                          style={[
-                            styles.typeOption,
-                            appointmentType === type && styles.typeOptionSelected,
-                            { backgroundColor: getTypeLightColor(), borderColor: getTypeColor(type) },
-                          ]}
-                          onPress={() => setAppointmentType(type)}
-                        >
-                          <Ionicons name={getTypeIcon(type) as any} size={16} color={getTypeColor(type)} />
-                          <Text style={[styles.typeOptionText, { color: getTypeColor(type) }]}>
-                            {type.charAt(0).toUpperCase() + type.slice(1)}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
-                    </ScrollView>
-                  </View>
-                  <View style={styles.inputGroup}>
-                    <Text style={styles.inputLabel}>3. Elige Fecha y Hora</Text>
-                    <TouchableOpacity style={styles.timeButton} onPress={() => openPicker('date')}>
-                      <Ionicons name="calendar" size={20} color="#0eb9e3" />
-                      <Text style={styles.timeButtonText}>
-                        {selectedDateTime.toLocaleString()}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                  <View style={styles.modalFooter}>
-                    <TouchableOpacity
-                      style={[styles.saveButton, { width: '100%' }]}
-                      onPress={handleSaveAppointment}
-                    >
-                      <Text style={styles.saveButtonText}>4. Crear Cita</Text>
-                    </TouchableOpacity>
-                  </View>
-                </ScrollView>
-              </KeyboardAvoidingView>
+                  
+                  <ScrollView
+                    contentContainerStyle={[
+                      styles.modalContent,
+                      { paddingBottom: kbHeight + (insets?.bottom ?? 0) + 24 }
+                    ]}
+                    keyboardShouldPersistTaps="handled"
+                    showsVerticalScrollIndicator={false}
+                  >
+                    <View style={styles.modalHeader}>
+                      <Text style={styles.modalTitle}>Nueva Cita</Text>
+                      <TouchableOpacity 
+                        onPress={() => setShowModal(false)} 
+                        style={styles.closeButton}
+                      >
+                        <Ionicons name="close" size={24} color="#ffffff" />
+                      </TouchableOpacity>
+                    </View>
+
+                    <View style={styles.inputGroup}>
+                      <Text style={styles.inputLabel}>1. Nombre Cita</Text>
+                      <TextInput
+                        style={styles.input}
+                        placeholder="Nombre de la cita"
+                        placeholderTextColor="#aaaaaa"
+                        value={title}
+                        onChangeText={setTitle}
+                        returnKeyType="next"
+                      />
+                    </View>
+
+                    <View style={styles.inputGroup}>
+                      <Text style={styles.inputLabel}>Descripción Adicional</Text>
+                      <TextInput
+                        style={[styles.input, styles.textArea]}
+                        placeholder="Descripción (opcional)"
+                        placeholderTextColor="#aaaaaa"
+                        value={description}
+                        onChangeText={setDescription}
+                        multiline
+                        numberOfLines={4}
+                        textAlignVertical="top"
+                      />
+                    </View>
+
+                    <View style={styles.inputGroup}>
+                      <Text style={styles.inputLabel}>2. Elige Tipo de Cita</Text>
+                      <ScrollView 
+                        horizontal 
+                        showsHorizontalScrollIndicator={false} 
+                        style={styles.typeSelector}
+                      >
+                        {(['personal', 'work', 'medical', 'urgent', 'other'] as AppointmentType[]).map(type => (
+                          <TouchableOpacity
+                            key={type}
+                            style={[
+                              styles.typeOption,
+                              appointmentType === type && styles.typeOptionSelected,
+                              { backgroundColor: getTypeLightColor(), borderColor: getTypeColor(type) },
+                            ]}
+                            onPress={() => setAppointmentType(type)}
+                          >
+                            <Ionicons name={getTypeIcon(type) as any} size={16} color={getTypeColor(type)} />
+                            <Text style={[styles.typeOptionText, { color: getTypeColor(type) }]}>
+                              {type.charAt(0).toUpperCase() + type.slice(1)}
+                            </Text>
+                          </TouchableOpacity>
+                        ))}
+                      </ScrollView>
+                    </View>
+
+                    <View style={styles.inputGroup}>
+                      <Text style={styles.inputLabel}>3. Elige Fecha y Hora</Text>
+                      <TouchableOpacity 
+                        style={styles.timeButton} 
+                        onPress={() => openPicker('date')}
+                      >
+                        <Ionicons name="calendar" size={20} color="#0eb9e3" />
+                        <Text style={styles.timeButtonText}>
+                          {selectedDateTime.toLocaleDateString()} {selectedDateTime.toLocaleTimeString()}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+
+                    <View style={styles.modalFooter}>
+                      <TouchableOpacity 
+                        style={[styles.saveButton, { width: '100%' }]} 
+                        onPress={handleSaveAppointment}
+                      >
+                        <Text style={styles.saveButtonText}>4. Crear Cita</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </ScrollView>
+                </KeyboardAvoidingView>
+              </View>
             </View>
+
             {showPicker && (
               <DateTimePicker
                 value={selectedDateTime}

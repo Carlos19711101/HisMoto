@@ -220,7 +220,7 @@ const GeneralScreen = ({ navigation }: any) => {
           style={styles.backButton}
           onPress={() => navigation.navigate('Todo')}
         >
-          <AntDesign name="doubleleft" size={24} color="white" />
+          <AntDesign name="double-left" size={24} color="white" />
         </TouchableOpacity>
 
         <View style={styles.content}>
